@@ -1,0 +1,23 @@
+body {
+  font-family: Arial, Verdana, sans-serif;
+}
+.container {
+  margin: 20px;
+}
+.sidebar {
+  width: 200px;
+  margin: 20px;
+  float: left;
+}
+.graphics {
+  float: left;
+  margin: 20px;
+}
+canvas {
+    border: 2px solid grey;
+    border-radius: 3px;
+}
+dt { width: 30px; float: left; }
+dt, dd { vertical-align: bottom; line-height: 36px }
+input { padding: 6px 6px 2px; border: 1px solid #CCC; }
+input:focus { outline: 2px solid #a3ccf7; }

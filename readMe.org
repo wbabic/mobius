@@ -1,0 +1,49 @@
+* mobius transformations
+  linear fractional transformations of the extended complex plane
+
+  lines and circles
+
+  two complx planes
+  objects and images
+
+  stereographic projection
+
+  perspective
+
+** reference
+   Indra's Pearls
+   The vision of felix Klein
+   Mumford, Series, Wright
+
+** idea
+   algebra abd geometry of
+   the extended complex numbers and
+   linear fractional transformations
+
+   objects: points lines circles
+   and their images
+   under application of arbitrary linear fractional transformations
+
+   infinity
+
+   stereographic projection
+
+** implementation
+   represent
+   complex number as a vector of two rational numbers
+   [x y]
+
+   linear fractional transformation as a vector of four complex numbers
+   [a b c d]
+   that can be normalized
+   ad - bc = 1
+
+   translation rotation scaling inversion
+   as normalized 4-vectors of complex number
+
+   infinity as inversion of zero in the unit disk
+
+   composition of transformation as matrix multipliation of complex matrices
+   conjugation by a conjugataing map as composition
+
+   inverse of a transformation as inverse of a normalized 4-vector
