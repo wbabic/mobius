@@ -233,7 +233,7 @@
 (comment
   (let [S1 {:center [0 0] :radius 1}]
     (image T2 S1))
-  ;;=> {:center "infinity"}
+  ;;=> [:line [-6.123233995736766e-17 -1] [-6.123233995736766e-17 1]]
 
   (let [S1 {:center [0 0] :radius 2}]
     (image T2 S1))
