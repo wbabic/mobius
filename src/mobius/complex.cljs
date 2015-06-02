@@ -52,6 +52,7 @@
 
 (declare complex-rect)
 (declare infinity)
+(declare zero)
 (declare undefined)
 
 (defrecord complex [x y]
@@ -61,14 +62,21 @@
                 infinity
                 (complex-rect (sum [x y] (coords w)))))
   (minus [z] (complex. (- x) (- y)))
-  (times [z w] (complex-rect (product [x y] (coords w))))
+  (times [_ w]
+    (cond (= w zero) zero
+          (= w infinity) infinity
+          :else
+          (complex-rect (product [x y] (coords w)))))
   (recip [z] (let [d (+ (* x x) (* y y))]
              (complex. (/ x d) (/ (- y) d))))
   (conjugate [_] (complex. x (- y)))
   (length [_] (len [x y]))
   (arg [_] (angle [x y])))
 
-(defn complex-rect [[x y]] (complex. x y))
+(defn complex-rect [[x y]]
+  (if (and (zero? x) (zero? y))
+    zero
+    (complex. x y)))
 
 (def one (complex-rect [1 0]))
 (def i (complex-rect [0 1]))
@@ -83,8 +91,12 @@
       infinity
       (complex-rect (sum (coords z) (coords w)))))
   (minus [z] (polar. (:length z) (mod (+ alpha 180) 360)))
-  (times [_ w] (polar. (* r (length w))
-                       (+ alpha (arg w))))
+  (times [_ w]
+    (cond (= w zero) zero
+          (= w infinity) infinity
+          :else
+          (polar. (* r (length w))
+                  (+ alpha (rad->deg (arg w))))))
   (recip [_] (polar. (/ r) (mod (- alpha) 360)))
   (conjugate [_] (polar. r (mod (- alpha) 360))))
 
@@ -127,6 +139,7 @@
         undefined
         z))
     (minus [z] z)
+    (conjugate [z] z)
     (times [this w]
       (if (= zero w)
         undefined
@@ -169,3 +182,11 @@
     (= z zero) zero
     (= w zero) infinity
     :else (times z (recip w))))
+
+(defn distance
+  "distance between two complex numbers
+  assuming z w not infinity"
+  [z w]
+  (let [z-w (add z (minus w))
+        d (len (coords z-w))]
+    d))

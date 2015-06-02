@@ -37,6 +37,13 @@
 (defn rect [context [x1 y1] [x2 y2]]
   (.fillRect context x1 y1 x2 y2))
 
+(defn circle [context center radius]
+  (.beginPath context)
+  (.arc context (center 0) (center 1) radius 0 (* 2 Math/PI) false)
+  (.stroke context)
+  (.fill context)
+  (.closePath context))
+
 (defn style [context s]
   (doseq [[k v] s]
     (case k
@@ -56,6 +63,8 @@
          (line context p1 p2)
          [:triangle p1 p2 p3]
          (triangle context p1 p2 p3)
+         [:circle center radius]
+         (circle context center radius)
          [:style s]
          (style context s)))
 
