@@ -1,6 +1,6 @@
 (ns mobius.geometry
   (:require [mobius.complex :as complex
-             :refer [div add minus infinity zero one]]))
+             :refer [div add minus infinity zero one i]]))
 
 ;; implement the algebra of
 ;; linear fractional transformations
@@ -47,14 +47,14 @@
   (complex/coords (mult I one))
   ;;=> [1 0]
 
-  (complex/coords (mult I complex/zero))
+  (complex/coords (mult I zero))
   ;;=> [0 0]
 
-  (complex/coords (mult I complex/i))
+  (complex/coords (mult I i))
   ;;=> [0 1]
   )
 
-(defn scale [a] (mobius-trans. a complex/zero complex/zero complex/one))
+(defn scale [a] (mobius-trans. a zero zero one))
 
 (comment
   (def z1 (complex/complex-rect [1 1]))
@@ -64,13 +64,71 @@
   (def scale-1 (scale z1))
   (map complex/coords (coords scale-1))
   ;;=> ([1 1] [0 0] [0 0] [1 0])
-  (complex/coords (mult scale-1 complex/one))
+
+  (complex/coords (mult scale-1 one))
   ;;=> [1 1]
 
-  (complex/coords (mult scale-1 complex/i))
+  (complex/coords (mult scale-1 i))
   ;;=> [-1 1]
 
   (complex/coords (det (scale (complex/complex-rect [1 1]))))
   ;;=> [1 1]
 
+  (mult (scale (complex/complex-rect [1 1])) i)
+  ;;=> #mobius.complex.complex{:x -1, :y 1}
+
+  (mult (scale (complex/complex-rect [1 1])) (complex/complex-rect [-1 1]))
+  ;;=> #mobius.complex.complex{:x -2, :y 0}
+
+  (mult (scale (complex/complex-rect [1 1])) (complex/complex-rect [-2 0]))
+  ;;=> #mobius.complex.complex{:x -2, :y -2}
+
+  )
+
+
+(def inversion
+  (mobius-trans. zero i i zero))
+
+(comment
+  (complex/coords (mult inversion zero))
+  ;;=> "infinity"
+
+  (complex/coords (mult inversion infinity))
+  ;;=> [0 0]
+
+  (complex/coords (mult inversion one))
+  ;;=> [1 0]
+
+  (complex/coords (mult inversion i))
+  ;;=> [0 -1]
+
+  )
+
+(defn translation [b]
+  (mobius-trans. one b zero one))
+
+(comment
+  (mult (translation i) one)
+  ;;=> #mobius.complex.complex{:x 1, :y 1}
+
+  (mult (translation i) i)
+  ;;=> #mobius.complex.complex{:x 0, :y 2}
+  )
+
+
+;; transformation which maps one and -one to zero and infinity respectively
+(def T2 (mobius-trans. one (minus one) one one))
+
+(comment
+  (complex/coords (mult T2 one))
+  ;;=> [0 0]
+
+  (complex/coords (mult T2 (minus one)))
+  ;;=> "infinity"
+
+  ;; has fixed points at i and -i
+  (complex/coords (mult T2 i))
+  ;;=> [0 1]
+  (complex/coords (mult T2 (minus i)))
+  ;;=> [0 -1]
   )
