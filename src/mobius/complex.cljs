@@ -51,11 +51,15 @@
                    (* length (Math/sin angle))]))
 
 (declare complex-rect)
+(declare infinity)
+(declare undefined)
 
 (defrecord complex [x y]
   Complex
   (coords [_] [x y])
-  (plus [_ w] (complex-rect (sum [x y] (coords w))))
+  (plus [_ w] (if (= w infinity)
+                infinity
+                (complex-rect (sum [x y] (coords w)))))
   (minus [z] (complex. (- x) (- y)))
   (times [z w] (complex-rect (product [x y] (coords w))))
   (recip [z] (let [d (+ (* x x) (* y y))]
@@ -74,7 +78,10 @@
   (coords [_] (polar->rect r (deg->rad alpha)))
   (arg [_] alpha)
   (length [_] r)
-  (plus [z w] (complex-rect (sum (coords z) (coords w))))
+  (plus [z w]
+    (if (= w infinity)
+      infinity
+      (complex-rect (sum (coords z) (coords w)))))
   (minus [z] (polar. (:length z) (mod (+ alpha 180) 360)))
   (times [_ w] (polar. (* r (length w))
                        (+ alpha (arg w))))
@@ -98,14 +105,14 @@
   (coords i)
   )
 
-(declare infinity)
-(declare undefined)
-
 (def zero
   (reify Complex
     (plus [_ w] w)
     (minus [z] z)
-    (times [z w] z)  ;; unless w = infinity, then undefined
+    (times [z w]
+      (if (= w infinity)
+        undefined
+        z))  ;; unless w = infinity, then undefined
     (recip [_] infinity)
     (length [_] 0)
     (arg [_] 0)
@@ -114,10 +121,21 @@
 
 (def infinity
   (reify Complex
-    (plus [z w] z);; unless w = infinity, then undefined
+    (coords [_] "infinity")
+    (plus [z w]
+      (if (= w infinity)
+        undefined
+        z))
     (minus [z] z)
-    (times [this w] this)
+    (times [this w]
+      (if (= zero w)
+        undefined
+        this))
     (recip [_] zero)))
+
+(def undefined
+  (reify Complex
+    (coords [_] "undefined")))
 
 (comment
   (= zero (recip infinity))
@@ -128,7 +146,10 @@
   "add complex numbers"
   ([] zero)
   ([z] z)
-  ([z w] (plus z w))
+  ([z w]
+   (if (and (= z infinity) (= w infinity))
+     undefined
+     (plus z w)))
   ([z w & rest] (reduce plus (plus z w) rest)))
 
 (defn mult
@@ -141,4 +162,10 @@
 (defn div
   "divide two complex numbers"
   [z w]
-  (times z (recip w)))
+  (cond
+    (and (= z infinity) (= w infinity)) undefined
+    (and (= z zero) (= w zero)) undefined
+    (= w infinity) zero
+    (= z zero) zero
+    (= w zero) infinity
+    :else (times z (recip w))))
