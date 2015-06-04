@@ -12,19 +12,17 @@
 
 (def canvas-1-config
   {:resolution [500 500]
-   :domain [-2 2]
-   :range [-2 2]})
+   :domain [-4 4]
+   :range [-4 4]})
 
 (def canvas-2-config
   {:resolution [500 500]
-   :domain [-2 2]
-   :range [-2 2]})
+   :domain [-4 4]
+   :range [-4 4]})
 
 (defonce app-state
   (atom
-   {:mobius geom/T2
-
-    }))
+   {:mobius geom/T2}))
 
 (defn el [id] (js/document.getElementById id))
 
@@ -46,23 +44,35 @@
 
 (def clear
   [[:style {:fill "grey"}]
-   [:rect [-2 2] [2 -2]]])
+   [:rect [-4 4] [4 -4]]])
 
 (defn clear-screen [draw-chan]
   (go (doseq [d clear]
         (>! draw-chan d))))
 
 (defn concentric-circles
+  "generate sequence of circles
+  with given center and radii in range"
+  [center radii]
+  (let [c (fn [r] [:circle {:center center :radius r}])]
+    (for [r radii]
+      (c r))))
+
+(def colors ["red" "orange" "yellow" "green" "blue" "indigo" "violet"])
+
+(defn draw-concentric-circles
   "send a sequence of circles to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (clear-screen draw-chan-1)
   (clear-screen draw-chan-2)
-  (let [circles (geom/concentric-circles [0 0] 0.25 2.26 0.25)
+  (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
         trans #(geom/image geom/T2 (second %))]
     (go
-      (doseq [c circles]
-        (<! (timeout 200))
+      (doseq [[c color] (map vector circles colors)]
+        (<! (timeout 800))
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 2}])
         (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 2}])
         (>! draw-chan-2 (trans c))))))
 
 (defn mobius-config
@@ -85,7 +95,7 @@
                  (dom/button #js {:onClick
                                   #(do
                                      (println "drawing circles")
-                                     (concentric-circles draw-chan-1 draw-chan-2))}
+                                     (draw-concentric-circles draw-chan-1 draw-chan-2))}
                              "Button"))))))
 
 (om/root

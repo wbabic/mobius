@@ -242,7 +242,6 @@
   (let [S1 {:center [0 0] :radius .5}]
     (image T2 S1))
   ;;=> {:center [-1.6666666666666665 0], :radius 1.3333333333333333}
-
   )
 
 (defn concentric-circles
