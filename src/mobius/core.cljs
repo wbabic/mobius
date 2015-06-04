@@ -90,13 +90,16 @@
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div {}
                  (dom/dl {}
-                         (dom/dt {} "input")
-                         (dom/dd {} (input :scale scale owner state)))
+                         (dom/dt {} "T(z)")
+                         (dom/dd {}
+                                 " = (z - i)/(z + i)"
+                                 ;;(input :scale scale owner state)
+                                 ))
                  (dom/button #js {:onClick
                                   #(do
                                      (println "drawing circles")
                                      (draw-concentric-circles draw-chan-1 draw-chan-2))}
-                             "Button"))))))
+                             "Concentric Circles"))))))
 
 (om/root
  mobius-config

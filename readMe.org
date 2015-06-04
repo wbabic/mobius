@@ -1,49 +1,117 @@
 * mobius transformations
   linear fractional transformations of the extended complex plane
+  images of lines and circles
 
-  lines and circles
+  two complex planes
+  pre-image and image
 
-  two complx planes
-  objects and images
+  stereographic projection in perspective
 
-  stereographic projection
-
-  perspective
-
-** reference
+** references
    Indra's Pearls
    The vision of felix Klein
    Mumford, Series, Wright
 
+   Visual Complex Analysis
+
+   Geometry of Complex Numbers
+
 ** idea
-   algebra abd geometry of
+   algebra and geometry of
    the extended complex numbers and
    linear fractional transformations
 
-   objects: points lines circles
-   and their images
-   under application of arbitrary linear fractional transformations
+   geometric objects:
+   points lines triangles circles
+   and their images under application of linear fractional transformations
 
-   infinity
-
+   infinity and
    stereographic projection
+   the extended complex plane
+   and the Reiman sphere
+   in perspective
 
 ** implementation
    represent
    complex number as a vector of two rational numbers
-   [x y]
+   [x y] or [r a]
+   with the possibility of being infinity
+   where 1/zero = infinity and 1/infinity = zero
+   and zero/zero = infinity/infinity = undefined
 
-   linear fractional transformation as a vector of four complex numbers
+   complex numbers can be added, multiplied and conjugated
+   they have a length and an angle
+
+   linear fractional transformation represented as
+   a vector of four complex numbers
    [a b c d]
-   that can be normalized
+   that can be normalized so that
    ad - bc = 1
+   has a determinant, trace, inverse
+   can be composed and conjugated
 
    translation rotation scaling inversion
-   as normalized 4-vectors of complex number
+   all represented as normalized 4-vectors of complex number
 
-   infinity as inversion of zero in the unit disk
+   composition of transformation implemented as
+   matrix multipliation of 2x2 complex matrices
 
-   composition of transformation as matrix multipliation of complex matrices
+   inverse of a transformation as inverse of a 2x2 matrix
    conjugation by a conjugataing map as composition
+   of three matrices
 
-   inverse of a transformation as inverse of a normalized 4-vector
+** next steps
+*** generalized circles
+    calculate image of a
+    generalized circle
+    under any linear fractional transformation
+
+    create representation of
+    a generalized circle
+
+    as a Hermitean matrix, perhaps?
+
+*** polar and rectanglar interactive modes
+    when mouse is in pre-image canvas
+    draw line through mouse and origin
+    and circle centered at origin through mouse point
+    when in polar mode
+
+    or verticle and horizontal lines through mouse point
+    whein in rectangular mode
+
+    also draw images of lines and circles in image canvas
+*** add grandma's recipes
+    add more linear fractional transformations,
+    as found in Grandma's recipies
+
+    those that
+    - preserve the real line
+    - preserve the unit circle, disk
+    - preserve the upper half plane
+    - pair circles
+
+    - are loxodromic
+    - are elliptic
+    - are hyperbolic
+    - are parabolic
+
+*** allow for input of arbitrary linear fractional transformation
+    allow for input of arbitrary complex number
+    in polar and rectangular form
+    - as [x y] -> x + iy
+    - as [r a] -> r*exp(i*a)
+    - as named complex numbers:
+      zero one i infity w1
+    - as operations on existing complex number
+      minus recip conjugate
+      and compositions thereof
+
+    allow for input of linear fractional transformations
+
+*** show properties of the transformation
+    determinant
+    trace
+    inverse
+*** allow for conjugation
+    with translation, rotation, scaling
