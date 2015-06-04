@@ -244,3 +244,21 @@
   ;;=> {:center [-1.6666666666666665 0], :radius 1.3333333333333333}
 
   )
+
+(defn concentric-circles
+  "generate sequence of circles
+  with given center and radii in range"
+  [center start end step]
+  (let [c (fn [r] [:circle {:center center :radius r}])]
+    (for [r (range start end step)]
+      (c r))))
+
+(comment
+  (concentric-circles [0 0] 1 10 1)
+  (map #(image T2 (second %)) (concentric-circles [0 0] 1 10 1))
+
+  (map #(image T2 (second %)) (concentric-circles [0 0] .25 2.1 .25))
+
+  ;; radii from .25 to 4
+  (concentric-circles [0 0] .25 2.1 .25)
+  )
