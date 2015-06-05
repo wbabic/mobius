@@ -261,3 +261,30 @@
   ;; radii from .25 to 4
   (concentric-circles [0 0] .25 2.1 .25)
   )
+
+
+;; representation of circles by hermitian matrices
+
+(defn circle-as-matrix
+  [center radius]
+  (let [gamma (complex/complex-rect center)
+        A 1
+        B (minus (complex/conjugate gamma))
+        C gamma
+        D (- (complex/len-sq center) (* radius radius))]
+    [A B C D]))
+
+;; methods that take a generalized circle
+(defn to-string [[A B C D]]
+  (pr-str [A (complex/coords B) (complex/coords C) D]))
+
+(defn determinant [[A B C D]]
+  (let [b (complex/coords B)
+        b2 (complex/len-sq b)]
+    (- (* A D) b2)))
+
+
+(comment
+  (let [S1 (circle-as-matrix [0 0] 1)]
+    [(to-string S1) (determinant S1)])
+  )
