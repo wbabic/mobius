@@ -65,6 +65,7 @@
   (times [_ w]
     (cond (= w zero) zero
           (= w infinity) infinity
+          (number? w) (complex-rect [(* x w) (* y w)])
           :else
           (complex-rect (product [x y] (coords w)))))
   (recip [z] (let [d (+ (* x x) (* y y))]
@@ -94,6 +95,7 @@
   (times [_ w]
     (cond (= w zero) zero
           (= w infinity) infinity
+          (number? w) (polar. (* r w) alpha)
           :else
           (polar. (* r (length w))
                   (+ alpha (rad->deg (arg w))))))
@@ -190,3 +192,10 @@
   (let [z-w (add z (minus w))
         d (len (coords z-w))]
     d))
+
+(defn sqrt
+  "square root of given number"
+  [n]
+  (let [n-pos (Math/abs n)
+        n-pos-sqrt (Math/sqrt n-pos)]
+    (complex-rect [0 n-pos-sqrt])))

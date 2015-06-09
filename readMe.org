@@ -13,8 +13,17 @@
    Mumford, Series, Wright
 
    Visual Complex Analysis
+   Tristan Needham
 
    Geometry of Complex Numbers
+   Hans Schwerdttfeger
+
+   Introduction to the
+   Geometry of Complex Numbers
+   Roland Deaux
+
+   Introduction to Geometry
+   Coxeter
 
 ** idea
    algebra and geometry of
@@ -61,6 +70,7 @@
     inverse of a transformation as inverse of a 2x2 matrix
     conjugation by a conjugataing map as composition
     of three matrices
+
 *** image of a generalized circle
     image of a circle from
     Grandma's recipe and project 3.7 in Indra's Pearls
@@ -95,7 +105,7 @@
     create representation of
     a generalized circle
 
-    as a Hermitean matrix, perhaps?
+    as a Hermitian matrix, perhaps?
 
 *** polar and rectanglar interactive modes
     when mouse is in pre-image canvas
