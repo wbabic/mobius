@@ -400,7 +400,16 @@ need A and B to be real and B anc C complex conjugates"
           [A B C D] (line-coords-from-matrix l)))
   ([p1 p2] (line-coords-from-two-points p1 p2)))
 
-(defn determinant [[A B C D]]
+(defn param-line
+  "given two endpoints return function
+  of parameteriezed linem"
+  [A B]
+  (fn [t]
+    (plus A (scal-mul t (plus B (scal-mul -1 A))))))
+
+(defn determinant
+  "determinant of a hermitian matrix"
+  [[A B C D]]
   (let [b (complex/coords B)
         b2 (complex/len-sq b)]
     (- (* A D) b2)))
