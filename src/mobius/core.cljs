@@ -77,13 +77,16 @@
 
 (defn draw-radial-lines
   "send a sequence of radial lines to the drawing channel"
-  [draw-chan-1]
-  (let [lines (geom/radial-lines 7)]
+  [draw-chan-1 draw-chan-2]
+  (let [lines (geom/radial-lines 6)
+        trans #(geom/image geom/T2 %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
         (>! draw-chan-1 [:style {:stroke c :lineWidth 2}])
-        (>! draw-chan-1 l)))))
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 2}])
+        (>! draw-chan-2 (trans l))))))
 
 (defn mobius-config
   "input form for mobius"
@@ -108,12 +111,14 @@
                  (dom/button #js {:onClick
                                   #(do
                                      (println "drawing circles")
-                                     (draw-concentric-circles draw-chan-1 draw-chan-2))}
+                                     (draw-concentric-circles draw-chan-1
+                                                              draw-chan-2))}
                              "Concentric Circles")
                  (dom/button #js {:onClick
                                   #(do
                                      (println "drawing radial lines")
-                                     (draw-radial-lines draw-chan-1))}
+                                     (draw-radial-lines draw-chan-1
+                                                        draw-chan-2))}
                              "Radial Lines"))))))
 
 (om/root

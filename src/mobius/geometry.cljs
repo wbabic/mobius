@@ -233,11 +233,6 @@
             r2 (rotation P -90)]
         [:line (complex/coords (mult r1 mdc)) (complex/coords (mult r2 mdc))]))))
 
-(defn collinear?
-  "return true if given points are collinear"
-  [p1 p2 p3]
-  false)
-
 (defn scal-mul
   "multiply a scalar and a vector"
   [t p]
@@ -254,26 +249,48 @@
   [p1 p2]
   (scal-mul (/ 2) (plus p1 p2)))
 
+(declare point-on-line?)
+(declare line-coords)
+(declare intersection)
+(defn collinear?
+  "return true if given points are collinear"
+  [c1 c2 c3]
+  (let [[p1 p2 p3] (mapv complex/coords [c1 c2 c3])
+        l (line-coords p1 p2)]
+    (point-on-line? p3 l)))
+
 (defn circumcircle
   "return circumcircle of given non collinear points"
   [p1 p2 p3]
-  (let [c ()
-        r ()]
-    [:circle {:center c :radius r}]))
+  (let [c (intersection [p1 p2] [p2 p3])
+        r (complex/distance p3 (complex/complex-rect c))
+        cc [:circle {:center c :radius r}]
+        _ (print "circumcircle: ")
+        _ (prn cc)]
+    cc))
 
 (defn image-line
   "return the image od the given line L
-  uder linera fractional transformation T"
+  under lineer fractional transformation T"
   [T L]
   (let [[p1 p2] L
+        _ (print "pre-image line")
+        _ (prn L)
         m (midpoint p1 p2)
         T-fn #(mult T %)
-        Tp1 (T-fn p1)
-        Tp2 (T-fn p2)
-        Tm (T-fn m)]
-    (if (collinear? Tp1 Tp2 m)
-      [:line (complex/coords Tp1) (complex/coords Tp2)]
-      (circumcircle Tp1 Tp2 m))))
+        c #(complex/complex-rect %)
+        Tp1 (T-fn (c p1))
+        Tp2 (T-fn (c p2))
+        Tm (T-fn (c m))
+        _ (print "image ponts")
+        _ (prn (mapv #(complex/coords %) [Tp1 Tm Tp2]))]
+    (if (some #(= infinity %) [Tp1 Tp2 Tm])
+      (cond (= infinity Tp1) [:line (complex/coords Tp2) (complex/coords Tm)]
+            (= infinity Tp2) [:line (complex/coords Tp1) (complex/coords Tm)]
+            :else [:line (complex/coords Tp1) (complex/coords Tp2)])
+      (if (collinear? Tp1 Tp2 Tm)
+        [:line (complex/coords Tp1) (complex/coords Tp2)]
+        (circumcircle Tp1 Tp2 Tm)))))
 
 (defn image
   "return the image of given generalized circle C
@@ -281,7 +298,7 @@
   [T CorL]
   (match CorL
          [:circle C] (image-circle T C)
-         [:line L] (image-line T L)))
+         [:line p1 p2] (image-line T [p1 p2])))
 
 (comment
   (let [S1 {:center [0 0] :radius 1}]
@@ -392,13 +409,23 @@ need A and B to be real and B anc C complex conjugates"
     [a b c]))
 
 (defn line-coords
-  "return line coords [a b c]
-  for given line"
+  "return line coords [a b c] for line ax + by = c
+  for given line or for line btween two given points,
+  as vectors or complex numbers"
   ([l]
    (match l
+          [p1 p2]
+          (if (vector? p1)
+            (line-coords-from-two-points p1 p2)
+            (line-coords-from-two-points (complex/coords p1)
+                                         (complex/coords p2)))
           [:line p1 p2] (line-coords-from-two-points p1 p2)
           [A B C D] (line-coords-from-matrix l)))
-  ([p1 p2] (line-coords-from-two-points p1 p2)))
+  ([p1 p2]
+   (if (vector? p1)
+     (line-coords-from-two-points p1 p2)
+     (line-coords-from-two-points (complex/coords p1)
+                                  (complex/coords p2)))))
 
 (defn param-line
   "given two endpoints return function
@@ -421,7 +448,7 @@ need A and B to be real and B anc C complex conjugates"
   [p l]
   (let [[x y] p
         [a b c] l]
-    (= c (+ (* a x) (* b y)))))
+    (< (* (- c (+ (* a x) (* b y))) (- c (+ (* a x) (* b y)))) (/ 1 100000))))
 
 (defn mat-inverse
   "matrix inverse of a 2x2 real matrix"
@@ -509,5 +536,13 @@ need A and B to be real and B anc C complex conjugates"
         e2 [0 1]
         l1 [:line o e1]
         l2 [:line o e1]]
+    [(intersection l1 l2)])
+
+  (let [l1 [:line zero one]
+        l2 [:line zero i]]
+    [(intersection l1 l2)])
+
+  (let [l1 [zero one]
+        l2 [zero i]]
     [(intersection l1 l2)])
   )

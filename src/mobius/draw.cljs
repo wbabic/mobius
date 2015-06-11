@@ -117,7 +117,6 @@
         t-fn (user->screen config)]
     (go (loop [t-fn t-fn]
           (let [draw-msg (<! draw-chan)]
-            (prn draw-msg)
             (render draw-msg context t-fn)
             (recur t-fn))))
     draw-chan))
