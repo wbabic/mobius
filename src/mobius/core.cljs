@@ -70,22 +70,22 @@
     (go
       (doseq [[c color] (map vector circles colors)]
         (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke color :lineWidth 2}])
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
-        (>! draw-chan-2 [:style {:stroke color :lineWidth 2}])
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-2 (trans c))))))
 
 (defn draw-radial-lines
   "send a sequence of radial lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
-  (let [lines (geom/radial-lines 6)
+  (let [lines (geom/radial-lines 12)
         trans #(geom/image geom/T2 %)]
     (go
-      (doseq [[l c] (map vector lines (cycle colors))]
+      (doseq [[l c] (map vector lines (cycle (drop 1 colors)))]
         (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke c :lineWidth 2}])
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
-        (>! draw-chan-2 [:style {:stroke c :lineWidth 2}])
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
 
 (defn mobius-config
@@ -105,7 +105,7 @@
                  (dom/dl {}
                          (dom/dt {} "T(z)")
                          (dom/dd {}
-                                 " = (z - i)/(z + i)"
+                                 " = (z - 1)/(z + 1)"
                                  ;;(input :scale scale owner state)
                                  ))
                  (dom/button #js {:onClick

@@ -29,7 +29,13 @@
                 (= z (minus (div d c))) infinity
                 :else (div (add (complex/mult a z) b)
                            (add (complex/mult c z) d))))
-  (inverse [_] (mobius-trans. d (minus b) (minus c) a))
+  (inverse [T]
+    (let [k (det T)
+          m #(complex/mult % k)]
+      (mobius-trans. (m d)
+                     (m (minus b))
+                     (m (minus c))
+                     (m a))))
   (compose [_ T2] (let [[a2 b2 c2 d2] (coords T2)]
                     (mobius-trans. (c-dot [a b] [a2 c2])
                                    (c-dot [a b] [b2 d2])
@@ -259,10 +265,26 @@
         l (line-coords p1 p2)]
     (point-on-line? p3 l)))
 
+(defn complex-midpoint
+  [z w]
+  (complex/mult (add z w) (/ 2)))
+
+(defn perp-bisector
+  "return perp bisector of line segment z w
+  where z and w are complex numbers not equal to infinity
+  and result is returned as two complex numbers"
+  [[z w]]
+  (let [m (complex-midpoint z w)
+        t #(add m %)
+        t-inv #(add (minus m) %)
+        r #(complex/mult i %)
+        f (comp t r t-inv)]
+    [(f z) (f w)]))
+
 (defn circumcircle
   "return circumcircle of given non collinear points"
   [p1 p2 p3]
-  (let [c (intersection [p1 p2] [p2 p3])
+  (let [c (intersection (perp-bisector [p1 p2]) (perp-bisector [p2 p3]))
         r (complex/distance p3 (complex/complex-rect c))
         cc [:circle {:center c :radius r}]
         _ (print "circumcircle: ")
@@ -270,7 +292,7 @@
     cc))
 
 (defn image-line
-  "return the image od the given line L
+  "return the image of the given line L
   under lineer fractional transformation T"
   [T L]
   (let [[p1 p2] L
