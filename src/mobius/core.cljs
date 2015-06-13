@@ -22,7 +22,7 @@
 
 (defonce app-state
   (atom
-   {:mobius geom/T2}))
+   {:mobius geom/T3}))
 
 (defn el [id] (js/document.getElementById id))
 
@@ -66,7 +66,7 @@
   (clear-screen draw-chan-1)
   (clear-screen draw-chan-2)
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
-        trans #(geom/image geom/T2 %)]
+        trans #(geom/image (:mobius @app-state) %)]
     (go
       (doseq [[c color] (map vector circles colors)]
         (<! (timeout 800))
@@ -79,7 +79,7 @@
   "send a sequence of radial lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/radial-lines 12)
-        trans #(geom/image geom/T2 %)]
+        trans #(geom/image (:mobius @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle (drop 1 colors)))]
         (<! (timeout 800))

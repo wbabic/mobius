@@ -3,6 +3,10 @@
              :refer [div add minus recip infinity zero one i]]
             [cljs.core.match :refer-macros [match]]))
 
+(def unit-circle [:circle {:center [0 0] :radius 1}])
+(def real-axis [:line [0 0] [1 0]])
+(def imaginary-axis [:line [0 0] [0 1]])
+
 ;; implement the algebra of
 ;; linear fractional transformations
 
@@ -128,6 +132,9 @@
 
 ;; transformation which maps one and -one to zero and infinity respectively
 (def T2 (mobius-trans. one (minus one) one one))
+
+;; Cayley Traansform
+(def T3 (mobius-trans. one (minus i) one i))
 
 (comment
   (complex/coords (mult T2 one))
@@ -360,10 +367,18 @@
 
   (map #(image-circle T2 (second %)) (concentric-circles [0 0] .25 2.1 .25))
 
+  (map #(image T2 %) (concentric-circles [0 0] .25 2.1 .25))
+
   ;; radii from .25 to 4
   (concentric-circles [0 0] .25 2.1 .25)
   (radial-lines 2)
   (radial-lines 4)
+
+  (image T2 unit-circle)
+  ;;=> [:line [-6.123233995736766e-17 -1] [-6.123233995736766e-17 1]]
+  (image T3 unit-circle)
+  ;;=> [:line [1 -6.123233995736766e-17] [-1 -6.123233995736766e-17]]
+
   )
 
 ;; representation of circles and lines by hermitian matrices
@@ -470,7 +485,7 @@ need A and B to be real and B anc C complex conjugates"
   [p l]
   (let [[x y] p
         [a b c] l]
-    (< (* (- c (+ (* a x) (* b y))) (- c (+ (* a x) (* b y)))) (/ 1 100000))))
+    (< (* (- c (+ (* a x) (* b y))) (- c (+ (* a x) (* b y)))) 10e-10)))
 
 (defn mat-inverse
   "matrix inverse of a 2x2 real matrix"

@@ -199,3 +199,10 @@
   (let [n-pos (Math/abs n)
         n-pos-sqrt (Math/sqrt n-pos)]
     (complex-rect [0 n-pos-sqrt])))
+
+(comment
+  (let [z (complex-rect [-1 1])] (mapv coords [z (mult z z)]))
+  ;;=> [[-1 1] [0 -2]]
+
+
+  )
