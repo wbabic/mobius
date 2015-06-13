@@ -236,17 +236,18 @@
         Q (mult T (inv-C mdc))
         Pr (let [[x y] center]
              (complex/complex-rect [(+ x radius) y]))
-        Tpr (mult T Pr)
-        new-radius (complex/distance Q Tpr)]
+        Tpr (mult T Pr)]
     (if-not (= infinity Q)
       [:circle {:center (complex/coords Q)
-                :radius new-radius}]
+                :radius (complex/distance Q Tpr)}]
       (let [P (complex/complex-rect center)
             r1 (rotation P 90)
             r2 (rotation P -90)]
-        [:line (complex/coords (mult r1 mdc)) (complex/coords (mult r2 mdc))]))))
+        [:line
+         (complex/coords (mult T (mult r1 mdc)))
+         (complex/coords (mult T (mult r2 mdc)))]))))
 
-(defn scal-mul
+   (defn scal-mul
   "multiply a scalar and a vector"
   [t p]
   (let [[x y] p]
