@@ -63,8 +63,6 @@
 (defn draw-concentric-circles
   "send a sequence of circles to the drawing channel"
   [draw-chan-1 draw-chan-2]
-  (clear-screen draw-chan-1)
-  (clear-screen draw-chan-2)
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
         trans #(geom/image (:mobius @app-state) %)]
     (go
@@ -81,7 +79,33 @@
   (let [lines (geom/radial-lines 12)
         trans #(geom/image (:mobius @app-state) %)]
     (go
-      (doseq [[l c] (map vector lines (cycle (drop 1 colors)))]
+      (doseq [[l c] (map vector lines (cycle colors))]
+        (<! (timeout 800))
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l))))))
+
+(defn draw-horizontal-lines
+  "send a sequence of horizontal lines to the drawing channel"
+  [draw-chan-1 draw-chan-2]
+  (let [lines (geom/horizontal-lines 0.50)
+        trans #(geom/image (:mobius @app-state) %)]
+    (go
+      (doseq [[l c] (map vector lines (cycle colors))]
+        (<! (timeout 800))
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l))))))
+
+(defn draw-verticle-lines
+  "send a sequence of verticle lines to the drawing channel"
+  [draw-chan-1 draw-chan-2]
+  (let [lines (geom/verticle-lines 0.50)
+        trans #(geom/image (:mobius @app-state) %)]
+    (go
+      (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
@@ -119,7 +143,22 @@
                                      (println "drawing radial lines")
                                      (draw-radial-lines draw-chan-1
                                                         draw-chan-2))}
-                             "Radial Lines"))))))
+                             "Radial Lines")
+                 (dom/button #js {:onClick
+                                  #(do
+                                     (draw-horizontal-lines draw-chan-1
+                                                            draw-chan-2))}
+                             "Horizontal Lines")
+                 (dom/button #js {:onClick
+                                  #(do
+                                     (draw-verticle-lines draw-chan-1
+                                                          draw-chan-2))}
+                             "Verticle Lines")
+                 (dom/button #js {:onClick
+                                  #(do
+                                     (clear-screen draw-chan-1)
+                                     (clear-screen draw-chan-2))}
+                             "Clear"))))))
 
 (om/root
  mobius-config

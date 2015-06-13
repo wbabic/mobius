@@ -362,6 +362,20 @@
             c2 (complex/complex-polar 4 (+ 180 angle))]
         (l c1 c2)))))
 
+(defn horizontal-lines
+  "horizontal lines"
+  [step-size]
+  (let [h-line (fn [i] [:line [-4 i] [4 i]])]
+    (for [i (range -4 4 step-size)]
+      (h-line i))))
+
+(defn verticle-lines
+  "horizontal lines"
+  [step-size]
+  (let [v-line (fn [j] [:line [j -4] [j 4]])]
+    (for [j (range -4 4 step-size)]
+      (v-line j))))
+
 (comment
   (concentric-circles [0 0] 1 10 1)
   (map #(image-circle T2 (second %)) (concentric-circles [0 0] 1 10 1))
