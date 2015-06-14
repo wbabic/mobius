@@ -7,7 +7,9 @@
 (def unit-circle [:circle {:center [0 0] :radius 1}])
 (def real-axis [:line [0 0] [1 0]])
 (def imaginary-axis [:line [0 0] [0 1]])
-(def axis [real-axis imaginary-axis unit-circle])
+(def points [[:point [0 0]] [:point [1 0]] [:point [0 1]]])
+(def lines [real-axis imaginary-axis unit-circle])
+(def axis (interleave points lines))
 
 (declare point-on-line?)
 (declare line-coords)

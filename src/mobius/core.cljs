@@ -67,7 +67,7 @@
   (let [axis geom/axis
         trans #(t/image (:mobius @app-state) %)]
     (go
-      (doseq [[c color] (map vector axis ["blue" "green" "red"])]
+      (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
         (<! (timeout 800))
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)

@@ -211,7 +211,7 @@
         Tp1 (T-fn (c p1))
         Tp2 (T-fn (c p2))
         Tm (T-fn (c m))
-        _ (print "image ponts")
+        _ (print "image points")
         _ (prn (mapv #(complex/coords %) [Tp1 Tm Tp2]))]
     (if (some #(= infinity %) [Tp1 Tp2 Tm])
       (cond (= infinity Tp1) [:line (complex/coords Tp2) (complex/coords Tm)]
@@ -227,7 +227,8 @@
   [T CorL]
   (match CorL
          [:circle C] (image-circle T C)
-         [:line p1 p2] (image-line T [p1 p2])))
+         [:line p1 p2] (image-line T [p1 p2])
+         [:point p] [:point (complex/coords (mult T (complex/complex-rect p)))]))
 
 (comment
   (let [S1 {:center [0 0] :radius 1}]
