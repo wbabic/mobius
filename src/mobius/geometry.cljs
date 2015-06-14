@@ -129,6 +129,8 @@
   ;;=> #mobius.complex.complex{:x 0, :y 2}
   )
 
+;; z -> 1/z
+(def T1 (mobius-trans. zero one one zero))
 
 ;; transformation which maps one and -one to zero and infinity respectively
 (def T2 (mobius-trans. one (minus one) one one))

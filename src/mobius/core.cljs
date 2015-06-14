@@ -22,7 +22,7 @@
 
 (defonce app-state
   (atom
-   {:mobius geom/T3}))
+   {:mobius geom/T1}))
 
 (defn el [id] (js/document.getElementById id))
 
