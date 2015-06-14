@@ -4,7 +4,8 @@
             [om.dom :as dom :include-macros true]
             [cljs.core.async :as async :refer [chan <! >! timeout]]
             [mobius.draw :as draw]
-            [mobius.geometry :as geom]))
+            [mobius.geometry :as geom]
+            [mobius.transforms :as t]))
 
 (enable-console-print!)
 
@@ -22,7 +23,7 @@
 
 (defonce app-state
   (atom
-   {:mobius geom/T1}))
+   {:mobius t/T1}))
 
 (defn el [id] (js/document.getElementById id))
 
@@ -60,11 +61,24 @@
 
 (def colors ["red" "orange" "yellow" "green" "blue" "indigo" "violet"])
 
+(defn draw-axis
+  "send a sequence of real-axis imaginary-axis and unit circle"
+  [draw-chan-1 draw-chan-2]
+  (let [axis geom/axis
+        trans #(t/image (:mobius @app-state) %)]
+    (go
+      (doseq [[c color] (map vector axis ["blue" "green" "red"])]
+        (<! (timeout 800))
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-2 (trans c))))))
+
 (defn draw-concentric-circles
   "send a sequence of circles to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
-        trans #(geom/image (:mobius @app-state) %)]
+        trans #(t/image (:mobius @app-state) %)]
     (go
       (doseq [[c color] (map vector circles colors)]
         (<! (timeout 800))
@@ -77,7 +91,7 @@
   "send a sequence of radial lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/radial-lines 12)
-        trans #(geom/image (:mobius @app-state) %)]
+        trans #(t/image (:mobius @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -90,7 +104,7 @@
   "send a sequence of horizontal lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/horizontal-lines 0.50)
-        trans #(geom/image (:mobius @app-state) %)]
+        trans #(t/image (:mobius @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -103,7 +117,7 @@
   "send a sequence of verticle lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/verticle-lines 0.50)
-        trans #(geom/image (:mobius @app-state) %)]
+        trans #(t/image (:mobius @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -134,13 +148,16 @@
                                  ))
                  (dom/button #js {:onClick
                                   #(do
-                                     (println "drawing circles")
+                                     (draw-axis draw-chan-1
+                                                              draw-chan-2))}
+                             "Axes and Unit Circle")
+                 (dom/button #js {:onClick
+                                  #(do
                                      (draw-concentric-circles draw-chan-1
                                                               draw-chan-2))}
                              "Concentric Circles")
                  (dom/button #js {:onClick
                                   #(do
-                                     (println "drawing radial lines")
                                      (draw-radial-lines draw-chan-1
                                                         draw-chan-2))}
                              "Radial Lines")

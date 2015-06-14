@@ -1,7 +1,8 @@
-(ns mobius.complex)
+(ns mobius.complex
+  (:require [mobius.vector :as v]))
 
-;; linear fractional transformations
-;; complex numbers
+;; algebra of complex numbers
+
 (def pi Math/PI)
 (def tau (* 2 pi))
 (defn mod-tau [x] (mod x tau))
@@ -17,27 +18,6 @@
   (conjugate [z] "the conjugate of z")
   (length [z] "the length of z")
   (arg [z] "the argument of z"))
-
-(defn sum
-  "sum two vectors"
-  [z w] (mapv + z w))
-
-(defn product
-  ([] [1 0])
-  ([z] z)
-  ([z1 z2] (let [[x1 y1] z1
-                 [x2 y2] z2]
-             [(- (* x1 x2) (* y1 y2))
-              (+ (* y1 x2) (* x1 y2))]))
-  ([z1 z2 & rest] (reduce product (product z1 z2) rest)))
-
-(defn dot [[x1 y1] [x2 y2]] (+ (* x1 x2) (* y1 y2)))
-
-(defn len-sq [z] (dot z z))
-
-(defn len [z] (Math/sqrt (len-sq z)))
-
-(defn angle [[x y]] (Math/atan2 y x))
 
 (defn rad->deg [rad]
   (* rad (/ 360 tau)))
@@ -60,19 +40,19 @@
   (coords [_] [x y])
   (plus [_ w] (if (= w infinity)
                 infinity
-                (complex-rect (sum [x y] (coords w)))))
+                (complex-rect (v/sum [x y] (coords w)))))
   (minus [z] (complex. (- x) (- y)))
   (times [_ w]
     (cond (= w zero) zero
           (= w infinity) infinity
           (number? w) (complex-rect [(* x w) (* y w)])
           :else
-          (complex-rect (product [x y] (coords w)))))
+          (complex-rect (v/product [x y] (coords w)))))
   (recip [z] (let [d (+ (* x x) (* y y))]
              (complex. (/ x d) (/ (- y) d))))
   (conjugate [_] (complex. x (- y)))
-  (length [_] (len [x y]))
-  (arg [_] (angle [x y])))
+  (length [_] (v/len [x y]))
+  (arg [_] (v/angle [x y])))
 
 (defn complex-rect [[x y]]
   (if (and (zero? x) (zero? y))
@@ -90,7 +70,7 @@
   (plus [z w]
     (if (= w infinity)
       infinity
-      (complex-rect (sum (coords z) (coords w)))))
+      (complex-rect (v/sum (coords z) (coords w)))))
   (minus [z] (polar. (:length z) (mod (+ alpha 180) 360)))
   (times [_ w]
     (cond (= w zero) zero
@@ -185,12 +165,16 @@
     (= w zero) infinity
     :else (times z (recip w))))
 
+(defn c-dot [[a1 b1] [a2 b2]] (add (mult a1 a2) (mult b1 b2)))
+
+(defn len-sq [z] (mult z (conjugate z)))
+
 (defn distance
   "distance between two complex numbers
   assuming z w not infinity"
   [z w]
   (let [z-w (add z (minus w))
-        d (len (coords z-w))]
+        d (v/len (coords z-w))]
     d))
 
 (defn sqrt
@@ -204,5 +188,33 @@
   (let [z (complex-rect [-1 1])] (mapv coords [z (mult z z)]))
   ;;=> [[-1 1] [0 -2]]
 
+  )
+
+;; inversion in a general circle C
+;; where C has center P and radius r
+;; is z ->
+
+(defn inversion
+  "inversion in a circle"
+  ([] (fn [z] (recip (conjugate z))))
+  ([circle]
+   (let [{:keys [center radius]} circle
+         T (inversion)
+         Q (complex-rect center)
+         r (complex-rect [radius 0])
+         S (fn [z] (add (mult r z) Q))
+         S-inv (fn [w] (mult (recip r) (add w (minus Q))))]
+     (comp S T S-inv))))
+
+(comment
+  ;; inversion in unit circle
+  (let [T (inversion)]
+    (map (comp complex/coords T)
+         [zero infinity one i]))
+
+  (let [C {:center [0 1] :radius 1}
+        T (inversion C)]
+    (map (comp complex/coords T)
+         [i infinity one zero (complex/complex-rect [1 1]) (complex/complex-rect [2 1])]))
 
   )

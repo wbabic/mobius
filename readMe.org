@@ -26,12 +26,13 @@
    Coxeter
 
 ** idea
+   implement
    algebra and geometry of
    the extended complex numbers and
    linear fractional transformations
 
    geometric objects:
-   points lines triangles circles
+   points lines circles triangles
    and their images under application of linear fractional transformations
 
    infinity and
@@ -41,7 +42,18 @@
    in perspective
 
 ** implementation
+*** vector
+    in vector.cljs
+
+    vector addition
+    scalar multiplication
+    dot product
+    length
+    angle
+    distance
 *** complex number
+    in complex.cljs
+
     represented as
     a vector of two rational numbers
     [x y] or [r a]
@@ -53,6 +65,8 @@
     they have a length and an angle
 
 *** linear fractional transformation
+    in trasnforms.cljs
+
     represented as
     a vector of four complex numbers
     [a b c d]
@@ -104,8 +118,7 @@
 
     create representation of
     a generalized circle
-
-    as a Hermitian matrix, perhaps?
+    as a Hermitian matrix
 
 *** polar and rectanglar interactive modes
     when mouse is in pre-image canvas
@@ -133,6 +146,7 @@
     - are parabolic
 
 *** allow for input of arbitrary linear fractional transformation
+    and switching between a list of transforms, and adding new ones to the list
     allow for input of arbitrary complex number
     in polar and rectangular form
     - as [x y] -> x + iy
@@ -146,8 +160,14 @@
     allow for input of linear fractional transformations
 
 *** show properties of the transformation
+    entries a b c d
     determinant
     trace
     inverse
 *** allow for conjugation
     with translation, rotation, scaling
+*** add tests
+    unit
+    generative
+*** add complex sqrt
+    with tests
