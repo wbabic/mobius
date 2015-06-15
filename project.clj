@@ -24,7 +24,7 @@
 
   :cljsbuild {
     :builds [{:id "dev"
-              :source-paths ["src"]
+              :source-paths ["src" "test"]
               :figwheel { :on-jsload "mobius.core/on-js-reload" }
               :compiler {:main mobius.core
                          :asset-path "cljs/out"

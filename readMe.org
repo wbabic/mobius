@@ -111,7 +111,8 @@
     where a generalized circle is repsesented as a Hermitian matrix
 
 ** next steps
-*** generalized circles
+*** DONE generalized circles
+    CLOSED: [2015-06-14 Sun 16:58]
     calculate image of a
     generalized circle
     under any linear fractional transformation
