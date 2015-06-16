@@ -23,8 +23,20 @@
 
 (defonce app-state
   (atom
-   {:mobius t/J
+   {:index 0
     :transforms t/transforms}))
+
+(defn transform
+  "return current transform from dereferences state"
+  [state]
+  (let [i (:index state)]
+    (get (:transforms state) i)))
+
+(defn t-fn
+  "return current transform from dereferenced state"
+  [state]
+  (let [t (transform state)]
+    (:transform t)))
 
 (defn el [id] (js/document.getElementById id))
 
@@ -44,29 +56,39 @@
                   :onChange
                   #(update-local-state % owner key state)}))
 
-(defn update-state [e owner key]
-  (println "update-state" (.. e -target -value)))
+(defn update-state [e app-state index]
+  (println "update-state" (.. e -target -value) ":" index)
+  (om/update! app-state [:index] index))
 
-(defn select [key value owner]
-  (dom/input #js {:type "radio"
-                  :value value
-                  :onChange
-                  #(update-state % owner key)}))
+(defn select [index value checked app-state]
+  (if checked
+    (dom/input #js {:type "radio"
+                    :value value
+                    :onChange
+                    :checked "checked"
+                    #(update-state % app-state index)})
+    (dom/input #js {:type "radio"
+                    :value value
+                    :onChange
+                    #(update-state % app-state index)})))
 
-(defn transform-item [t owner]
+(defn transform-item [t index current-index app-state]
   (let [name (:name t)
-        text (:text t)
-        key 1]
+        text (:text t)]
     (list
      (dom/dt nil name)
      (dom/dd #js {:className "transform"}
-      text
-      (select key name owner)))))
+             text
+             (select index name (= index current-index) app-state)))))
 
-(defn transform-items [transforms owner]
-  (apply dom/dl nil
-         (flatten (for [t transforms]
-                    (transform-item t owner)))))
+(defn transform-items
+  "List available transforms and a means to select current transform"
+  [app-state]
+  (let [transforms (:transforms @app-state)
+        current-index (:index @app-state)]
+    (apply dom/dl nil
+           (flatten (for [[t i] (mapv vector transforms (range))]
+                      (transform-item t i current-index app-state))))))
 
 (def clear
   [[:style {:fill "grey"}]
@@ -90,7 +112,7 @@
   "send a sequence of real-axis imaginary-axis and unit circle"
   [draw-chan-1 draw-chan-2]
   (let [axis geom/axis
-        trans #(t/image (:mobius @app-state) %)]
+        trans #(t/image (t-fn @app-state) %)]
     (go
       (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
         (<! (timeout 800))
@@ -103,7 +125,7 @@
   "send a sequence of circles to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
-        trans #(t/image (:mobius @app-state) %)]
+        trans #(t/image (t-fn @app-state) %)]
     (go
       (doseq [[c color] (map vector circles colors)]
         (<! (timeout 800))
@@ -116,7 +138,7 @@
   "send a sequence of radial lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/radial-lines 12)
-        trans #(t/image (:mobius @app-state) %)]
+        trans #(t/image (t-fn @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -129,7 +151,7 @@
   "send a sequence of horizontal lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/horizontal-lines 0.50)
-        trans #(t/image (:mobius @app-state) %)]
+        trans #(t/image (t-fn @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -142,7 +164,7 @@
   "send a sequence of verticle lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
   (let [lines (geom/verticle-lines 0.50)
-        trans #(t/image (:mobius @app-state) %)]
+        trans #(t/image (t-fn @app-state) %)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (<! (timeout 800))
@@ -165,7 +187,7 @@
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div nil
-                 (transform-items (:transforms app-state) owner)
+                 (transform-items app-state)
 
                  (dom/button #js {:onClick
                                   #(do
