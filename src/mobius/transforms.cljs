@@ -5,7 +5,7 @@
             [mobius.geometry :as g]
             [mobius.vector :as v]))
 
-;; implement the algebra of
+;; the algebra of
 ;; linear fractional transformations
 
 (defprotocol Mobius
@@ -46,6 +46,10 @@
 
 (def I (mobius-trans. one zero zero one))
 (defn scale [a] (mobius-trans. a zero zero one))
+
+(def S1 (let [w (complex/complex-rect [1 0.4])]
+          (scale w)))
+
 ;; J: z -> 1/z
 (def J
   (mobius-trans. zero i i zero))
@@ -61,92 +65,6 @@
 ;; Cayley Traansform
 (def T3 (mobius-trans. one (minus i) one i))
 
-(comment
-  ;; identity transformation
-  (map complex/coords (coords I))
-  ;;=> ([1 0] [0 0] [0 0] [1 0])
-
-  (map complex/coords (coords (compose I I)))
-  ;;=> ([1 0] [0 0] [0 0] [1 0])
-
-  (complex/coords (mult I one))
-  ;;=> [1 0]
-
-  (complex/coords (mult I zero))
-  ;;=> [0 0]
-
-  (complex/coords (mult I i))
-  ;;=> [0 1]
-  )
-
-(comment
-  (complex/rad->deg (complex/arg (complex/complex-rect [1 1])))
-  ;;=> 45
-
-  (map complex/coords (coords (scale (complex/complex-rect [1 1]))))
-  ;;=> ([1 1] [0 0] [0 0] [1 0])
-
-  (complex/coords (det (scale (complex/complex-rect [1 1]))))
-  ;;=> [1 1]
-
-  (mult (scale (complex/complex-rect [1 1])) i)
-  ;;=> #mobius.complex.complex{:x -1, :y 1}
-
-  (mult (scale (complex/complex-rect [1 1])) (complex/complex-rect [-1 1]))
-  ;;=> #mobius.complex.complex{:x -2, :y 0}
-
-  (mult (scale (complex/complex-rect [1 1])) (complex/complex-rect [-2 0]))
-  ;;=> #mobius.complex.complex{:x -2, :y -2}
-  )
-
-(comment
-  (complex/coords (mult J zero))
-  ;;=> "infinity"
-
-  (complex/coords (mult J infinity))
-  ;;=> [0 0]
-
-  (complex/coords (mult J one))
-  ;;=> [1 0]
-
-  (complex/coords (mult J i))
-  ;;=> [0 -1]
-
-  )
-
-(comment
-  (mult (translation i) one)
-  ;;=> #mobius.complex.complex{:x 1, :y 1}
-
-  (mult (translation i) i)
-  ;;=> #mobius.complex.complex{:x 0, :y 2}
-  )
-
-(comment
-  (complex/coords (mult T2 one))
-  ;;=> [0 0]
-
-  (complex/coords (mult T2 (minus one)))
-  ;;=> "infinity"
-
-  ;; zero -> -one
-  (complex/coords (mult T2 zero))
-  ;;=> [-1 0]
-
-  ;; infinity -> one
-  (complex/coords (mult T2 infinity))
-  ;;=> [1 0]
-
-  ;; has fixed points at i and -i
-  (complex/coords (mult T2 i))
-  ;;=> [0 1]
-  (complex/coords (mult T2 (minus i)))
-  ;;=> [0 -1]
-
-  (complex/coords (trace T2))
-  ;;=> [2 0]
-  )
-
 (defn rotation
   "return the mobius transformation
   of a rotation about origin by
@@ -156,26 +74,6 @@
   ([P degrees]
    (conjugate (rotation degrees) (translation P))))
 
-(comment
-  (let [r-trans (scale i)
-        r #(mult r-trans %)]
-    (map (comp complex/coords r) [zero one i (minus one) (minus i)]))
-  ;;=> ([0 0] [0 1] [-1 0] [0 -1] [1 0])
-
-  (let [r-trans (rotation 90)
-        r #(mult r-trans %)]
-    (map (comp complex/coords r) [zero one i (minus one) (minus i)]))
-  ;;=> ([0 0] [6.123233995736766e-17 1] [-1 1.2246467991473532e-16] [6.123233995736766e-17 -1] [1 0])
-
-  (complex/mult (complex/complex-polar 90) i)
-  ;;=> #mobius.complex.polar{:r 1, :alpha 180}
-
-  ;; rotate about i by 90 degrees
-  (let [r1-trans (rotation i 90)
-        r1 #(mult r1-trans %)]
-    (map (comp complex/coords r1) [i zero one]))
-  ;;=> ([0 1] [1 1] [1 2])
-  )
 
 (defn image-circle
   "return the image of given circle C under
@@ -230,36 +128,19 @@
          [:line p1 p2] (image-line T [p1 p2])
          [:point p] [:point (complex/coords (mult T (complex/complex-rect p)))]))
 
-(comment
-  (let [S1 {:center [0 0] :radius 1}]
-    (image-circle T2 S1))
-  ;;=> [:line [-6.123233995736766e-17 -1] [-6.123233995736766e-17 1]]
-
-  (let [S1 {:center [0 0] :radius 2}]
-    (image-circle T2 S1))
-  ;;=> {:center [1.6666666666666665 0], :radius 1.3333333333333333}
-
-  (let [S1 {:center [0 0] :radius .5}]
-    (image-circle T2 S1))
-  ;;=> {:center [-1.6666666666666665 0], :radius 1.3333333333333333}
-  )
-
-(comment
-  (concentric-circles [0 0] 1 10 1)
-  (map #(image-circle T2 (second %)) (concentric-circles [0 0] 1 10 1))
-
-  (map #(image-circle T2 (second %)) (concentric-circles [0 0] .25 2.1 .25))
-
-  (map #(image T2 %) (concentric-circles [0 0] .25 2.1 .25))
-
-  ;; radii from .25 to 4
-  (concentric-circles [0 0] .25 2.1 .25)
-  (radial-lines 2)
-  (radial-lines 4)
-
-  (image T2 unit-circle)
-  ;;=> [:line [-6.123233995736766e-17 -1] [-6.123233995736766e-17 1]]
-  (image T3 unit-circle)
-  ;;=> [:line [1 -6.123233995736766e-17] [-1 -6.123233995736766e-17]]
-
-  )
+(def transforms
+  [{:name "Identity"
+    :text "z -> z"
+    :transform I}
+   {:name "Inversion"
+    :text "z -> 1/z"
+    :transform J}
+   {:name "Cayley"
+    :text "z -> (z-i)/(z+i)"
+    :transform T3}
+   {:name "T2"
+    :text "z -> (z-1)/(z+1)"
+    :transform T2}
+   {:name "S1"
+    :text "z -> (1 + 0.4i)z"
+    :transform S1}])

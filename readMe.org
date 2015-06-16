@@ -44,13 +44,18 @@
 ** implementation
 *** vector
     in vector.cljs
+    algebraic operations for vectors and matrices
 
-    vector addition
-    scalar multiplication
-    dot product
-    length
+    sum product
+    scal-mul
+    dot
+    len len-sq
     angle
-    distance
+    midpoint
+    mvmult
+    mmmult
+    mat-inverse
+
 *** complex number
     in complex.cljs
 
@@ -76,7 +81,7 @@
     can be composed and conjugated
 
     translation rotation scaling inversion
-    all represented as normalized 4-vectors of complex number
+    all represented as 4-vectors of complex number
 
     composition of transformation implemented as
     matrix multipliation of 2x2 complex matrices
@@ -148,6 +153,7 @@
 
 *** allow for input of arbitrary linear fractional transformation
     and switching between a list of transforms, and adding new ones to the list
+
     allow for input of arbitrary complex number
     in polar and rectangular form
     - as [x y] -> x + iy
@@ -159,6 +165,7 @@
       and compositions thereof
 
     allow for input of linear fractional transformations
+    by selection from a list or by entering 4 complex numbers
 
 *** show properties of the transformation
     entries a b c d

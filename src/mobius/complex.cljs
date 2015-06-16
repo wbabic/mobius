@@ -35,6 +35,15 @@
 (declare zero)
 (declare undefined)
 
+(defn product
+  ([] [1 0])
+  ([z] z)
+  ([z1 z2] (let [[x1 y1] z1
+                 [x2 y2] z2]
+             [(- (* x1 x2) (* y1 y2))
+              (+ (* y1 x2) (* x1 y2))]))
+  ([z1 z2 & rest] (reduce product (product z1 z2) rest)))
+
 (defrecord complex [x y]
   Complex
   (coords [_] [x y])
@@ -47,7 +56,7 @@
           (= w infinity) infinity
           (number? w) (complex-rect [(* x w) (* y w)])
           :else
-          (complex-rect (v/product [x y] (coords w)))))
+          (complex-rect (product [x y] (coords w)))))
   (recip [z] (let [d (+ (* x x) (* y y))]
              (complex. (/ x d) (/ (- y) d))))
   (conjugate [_] (complex. x (- y)))
@@ -165,7 +174,10 @@
     (= w zero) infinity
     :else (times z (recip w))))
 
-(defn c-dot [[a1 b1] [a2 b2]] (add (mult a1 a2) (mult b1 b2)))
+(defn c-dot
+  "dot product for 2x2 complex vectors"
+  [[a1 b1] [a2 b2]]
+  (add (mult a1 a2) (mult b1 b2)))
 
 (defn len-sq [z] (mult z (conjugate z)))
 

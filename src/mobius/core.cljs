@@ -23,7 +23,8 @@
 
 (defonce app-state
   (atom
-   {:mobius t/T1}))
+   {:mobius t/J
+    :transforms t/transforms}))
 
 (defn el [id] (js/document.getElementById id))
 
@@ -42,6 +43,30 @@
                   :value value
                   :onChange
                   #(update-local-state % owner key state)}))
+
+(defn update-state [e owner key]
+  (println "update-state" (.. e -target -value)))
+
+(defn select [key value owner]
+  (dom/input #js {:type "radio"
+                  :value value
+                  :onChange
+                  #(update-state % owner key)}))
+
+(defn transform-item [t owner]
+  (let [name (:name t)
+        text (:text t)
+        key 1]
+    (list
+     (dom/dt nil name)
+     (dom/dd #js {:className "transform"}
+      text
+      (select key name owner)))))
+
+(defn transform-items [transforms owner]
+  (apply dom/dl nil
+         (flatten (for [t transforms]
+                    (transform-item t owner)))))
 
 (def clear
   [[:style {:fill "grey"}]
@@ -139,13 +164,9 @@
       (let [scale (:scale state)
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
-        (dom/div {}
-                 (dom/dl {}
-                         (dom/dt {} "T(z)")
-                         (dom/dd {}
-                                 " = (z - 1)/(z + 1)"
-                                 ;;(input :scale scale owner state)
-                                 ))
+        (dom/div nil
+                 (transform-items (:transforms app-state) owner)
+
                  (dom/button #js {:onClick
                                   #(do
                                      (draw-axis draw-chan-1

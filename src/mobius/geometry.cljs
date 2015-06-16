@@ -58,12 +58,12 @@
 (defn radial-lines
   "return n radial lines through orogin"
   [n]
-  (let [l (fn [c1 c2] [:line (complex/coords c1) (complex/coords c2)])]
+  (let [l (fn [c1] [:line [0 0] (complex/coords c1)])]
     (for [i (range n)]
       (let [angle (/ (* i 180) n)
-            c1 (complex/complex-polar 4 angle)
+            c1 (complex/complex-polar angle)
             c2 (complex/complex-polar 4 (+ 180 angle))]
-        (l c1 c2)))))
+        (l c1)))))
 
 (defn horizontal-lines
   "horizontal lines"

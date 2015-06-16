@@ -18,7 +18,7 @@
              :exclusions [org.clojure/clojure
                           org.codehaus.plexus/plexus-utils]]]
 
-  :source-paths ["src"]
+  :source-paths ["src" "test"]
 
   :clean-targets ^{:protect false} ["resources/public/cljs" "target"]
 

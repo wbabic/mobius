@@ -7,15 +7,6 @@
   "sum two vectors"
   [z w] (mapv + z w))
 
-(defn product
-  ([] [1 0])
-  ([z] z)
-  ([z1 z2] (let [[x1 y1] z1
-                 [x2 y2] z2]
-             [(- (* x1 x2) (* y1 y2))
-              (+ (* y1 x2) (* x1 y2))]))
-  ([z1 z2 & rest] (reduce product (product z1 z2) rest)))
-
 (defn scal-mul
   "multiply a scalar and a vector"
   [t p]
