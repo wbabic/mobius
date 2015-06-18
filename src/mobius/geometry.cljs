@@ -72,7 +72,7 @@
     (for [i (range -4 4 step-size)]
       (h-line i))))
 
-(defn verticle-lines
+(defn vertical-lines
   "horizontal lines"
   [step-size]
   (let [v-line (fn [j] [:line [j -4] [j 4]])]

@@ -60,13 +60,39 @@
   (println "update-state" (.. e -target -value) ":" index)
   (om/update! app-state [:index] index))
 
+(def toggle
+  (fn [value] (if (true? value) false true)))
+
+(defn update-mouse-mode [e owner]
+  (let [target (. e -target)
+        name (. target -name)
+        key (keyword (. target -value))]
+    (om/update-state! owner [:mouse-mode key] toggle)
+    (println "update: " name " value: " key)))
+
+(defn mouse-mode [owner]
+  (dom/dl nil
+          (dom/h3 nil "Mouse Mode")
+          (dom/dt nil "Polar")
+          (dom/dd nil
+                  (dom/input #js {:type "checkbox"
+                                  :name "mouse-mode"
+                                  :value "polar"
+                                  :onChange
+                                  #(update-mouse-mode % owner)}))
+          (dom/dt nil "Rect")
+          (dom/dd nil
+                  (dom/input #js {:type "checkbox"
+                                  :name "mouse-mode"
+                                  :value "rectangular"
+                                  :onChange
+                                  #(update-mouse-mode % owner)}))))
+
 (defn select [index value checked app-state]
   (if checked
     (dom/input #js {:type "radio"
                     :value value
-                    :onChange
-                    :checked "checked"
-                    #(update-state % app-state index)})
+                    :checked "checked"})
     (dom/input #js {:type "radio"
                     :value value
                     :onChange
@@ -153,20 +179,20 @@
   (let [lines (geom/horizontal-lines 0.50)
         trans #(t/image (t-fn @app-state) %)]
     (go
-      (doseq [[l c] (map vector lines (cycle colors))]
+      (doseq [[l c] (map vector lines (repeat "blue"))]
         (<! (timeout 800))
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
 
-(defn draw-verticle-lines
-  "send a sequence of verticle lines to the drawing channel"
+(defn draw-vertical-lines
+  "send a sequence of vertical lines to the drawing channel"
   [draw-chan-1 draw-chan-2]
-  (let [lines (geom/verticle-lines 0.50)
+  (let [lines (geom/vertical-lines 0.50)
         trans #(t/image (t-fn @app-state) %)]
     (go
-      (doseq [[l c] (map vector lines (cycle colors))]
+      (doseq [[l c] (map vector lines (repeat "orange"))]
         (<! (timeout 800))
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
@@ -179,11 +205,12 @@
   (reify
     om/IInitState
     (init-state [_]
-      (let [scale (:scale @app-state)]
-        {:scale scale}))
+      {:mouse-mode {:polar false
+                    :rectangular false}})
     om/IRenderState
     (render-state [_ state]
-      (let [scale (:scale state)
+      (let [mouse-mode-state (:mouse-mode state)
+            _ (prn mouse-mode-state)
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div nil
@@ -192,7 +219,7 @@
                  (dom/button #js {:onClick
                                   #(do
                                      (draw-axis draw-chan-1
-                                                              draw-chan-2))}
+                                                draw-chan-2))}
                              "Axes and Unit Circle")
                  (dom/button #js {:onClick
                                   #(do
@@ -211,14 +238,16 @@
                              "Horizontal Lines")
                  (dom/button #js {:onClick
                                   #(do
-                                     (draw-verticle-lines draw-chan-1
+                                     (draw-vertical-lines draw-chan-1
                                                           draw-chan-2))}
-                             "Verticle Lines")
+                             "Vertical Lines")
                  (dom/button #js {:onClick
                                   #(do
                                      (clear-screen draw-chan-1)
                                      (clear-screen draw-chan-2))}
-                             "Clear"))))))
+                             "Clear")
+                 (dom/div #js {:className "mouse-mode"}
+                          (mouse-mode owner)))))))
 
 (om/root
  mobius-config

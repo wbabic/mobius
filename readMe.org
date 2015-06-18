@@ -132,7 +132,7 @@
     and circle centered at origin through mouse point
     when in polar mode
 
-    or verticle and horizontal lines through mouse point
+    or vertical and horizontal lines through mouse point
     whein in rectangular mode
 
     also draw images of lines and circles in image canvas
@@ -174,8 +174,11 @@
     inverse
 *** allow for conjugation
     with translation, rotation, scaling
-*** add tests
+*** DONE add unit tests
+    CLOSED: [2015-06-18 Thu 10:28]
     unit
-    generative
+*** add test.check
+    generative tests
+    test properties
 *** add complex sqrt
     with tests
