@@ -200,6 +200,25 @@
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
 
+(defn handle-event
+  "process move and click events from event-chan
+  update local state till complete
+  then return new triangle in ret-chan"
+  [owner event-chan ret-chan]
+  (go (loop [state {:step 0 :complete false}]
+        (let [event (<! event-chan)
+              new-state nil ;; (triangle-transitioner event state)
+              _ (prn event)]
+          (if (:complete new-state)
+            (do
+              ;; is complete, so do not recur
+              ;; (om/set-state! owner new-state)
+              (>! ret-chan :done))
+            (do
+              ;; not complete, keep going
+              ;; (om/set-state! owner new-state)
+              (recur new-state)))))))
+
 (defn mobius-config
   "input form for mobius"
   [app-state owner]
@@ -214,12 +233,14 @@
             control-chan (om/get-shared owner :control-chan)
             return-chan (chan)]
         (go (loop []
-              (let [control-type (<! control-chan)]
+              (let [control-type (<! control-chan)
+                    _ (prn control-type)]
                 (condp = control-type
                   :mouse-mode
                   (do
-                    )
-                  ))))))
+                    (handle-event owner event-chan return-chan))
+                  ))))
+        (go (>! control-chan :mouse-mode))))
 
     om/IRenderState
     (render-state [_ state]
@@ -270,7 +291,7 @@
   :shared (let [[draw-chan-1 event-chan-1]
                 (draw/drawing-loop "mobius-canvas-1"
                                    canvas-1-config
-                                   [:mouse-move :mouse-down])
+                                   [:mouse-click])
                 draw-chan-2 (draw/drawing-loop "mobius-canvas-2" canvas-2-config)]
             {:draw-chan-1 draw-chan-1
              :event-chan-1 event-chan-1
@@ -287,7 +308,7 @@
         tf (map m)
         data [[0 0] [1 0] [0 1] 1 [-10 10] [10 -10]]]
     (sequence tf data))
-  ;;=> ([250 250] [275 250] [250 225] 25 [0 0] [500 500])
+  ;;=> ([250 250] [313 250] [250 188] 62.5 [-375 -375] [875 875])
 
   ;; test out t-fn
   (let [t-fn (draw/transform-fn canvas-1-config)
@@ -295,4 +316,10 @@
     (sequence t-fn data))
   ;;=> ([250 250] [275 250] [250 225] 25)
 
+  ;; screen ->  user mapping
+  (let [m-inv (draw/screen->user canvas-1-config)
+        t-fn (map m-inv)
+        data [[250 250] [313 250] [250 188] [-375 -375] [875 875]]]
+    (sequence t-fn data))
+  ;;=> ([0 0] [1.008 0] [0 0.992] [-10 10] [10 -10])
   )

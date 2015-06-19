@@ -2,7 +2,8 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
             [cljs.core.match :refer-macros [match]]
-            [mobius.events :as e]))
+            [mobius.events :as e]
+            [mobius.vector :as v]))
 
 (enable-console-print!)
 
@@ -54,23 +55,6 @@
       :lineWidth (set! (. context -lineWidth) v))))
 
 ;; user space -> screen mapping stuff
-(defn plus [p1 p2]
-  (mapv + p1 p2))
-
-(defn scal-mult [t p]
-  (mapv #(* t %) p))
-
-(defn translation
-  "returns function that translates vectors by given vector"
-  ([w]
-   (fn [v] (plus w v)))
-  ([w n]
-   (fn [v] (plus (scal-mult n  w) v))))
-
-(defn scale
-  ([s] (scale s s))
-  ([sx sy] (fn [[x y]] [(* sx x) (* sy y)])))
-
 (def round-pt (fn [p] (mapv Math.round p)))
 
 (defn user->screen
@@ -80,12 +64,23 @@
         [xres yres] (:resolution config)
         sx (/ xres (- xf xi))
         sy (/ yres (- yi yf))
-        scale (scale sx sy)
-        translate (translation [(- xi) (- yf)])]
+        scale (v/scale sx sy)
+        translate (v/translation [(- xi) (- yf)])]
     (fn [p]
       (if (number? p)
         (* sx p)
         ((comp round-pt scale translate) p)))))
+
+(defn screen->user
+  [config]
+  (let [[xi xf] (:domain config)
+        [yi yf] (:range config)
+        [xres yres] (:resolution config)
+        sx (/ xres (- xf xi))
+        sy (/ yres (- yi yf))
+        scale-inverse (v/scale (/ sx) (/ sy))
+        translate-inverse (v/translation [xi yf])]
+    (comp translate-inverse scale-inverse)))
 
 (defn transform-fn
   "returns function that transforms points in user space
@@ -127,8 +122,8 @@
          canvas (.getElementById js/document id)
          context (.getContext canvas "2d")
          t-fn (user->screen config)
-         ;; need inverse function to map screen coords back to user coords
-         event-chan (e/mouse-chan canvas :mouse-move :move)]
+         f-inv (map (screen->user config))
+         event-chan (e/mouse-chan canvas :mouse-down :click f-inv)]
      (go (loop [t-fn t-fn]
            (let [draw-msg (<! draw-chan)]
              (render draw-msg context t-fn)

@@ -54,3 +54,15 @@
         res [(scal-mul (/ det) [d (- b)])
              (scal-mul (/ det) [(- c) a])]]
     res))
+
+;; vector operations
+(defn translation
+  "returns function that translates vectors by given vector"
+  ([w]
+   (fn [v] (sum w v)))
+  ([w n]
+   (fn [v] (sum (scal-mul n  w) v))))
+
+(defn scale
+  ([s] (scale s s))
+  ([sx sy] (fn [[x y]] [(* sx x) (* sy y)])))
