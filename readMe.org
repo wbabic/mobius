@@ -133,9 +133,9 @@
     when in polar mode
 
     or vertical and horizontal lines through mouse point
-    whein in rectangular mode
+    when in rectangular mode
 
-    also draw images of lines and circles in image canvas
+    draw images of lines and/or circles in image canvas
 
     mouse-mode-state lcoal state
     :polar :reactangular
@@ -144,6 +144,7 @@
     events channel: mouse-move, mouse-click
     control channel
     return channel
+    screen->user fn
 
     render list - list of things to be rendered during
     interactive mouse mode

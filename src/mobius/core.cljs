@@ -39,8 +39,6 @@
   (let [t (transform state)]
     (:transform t)))
 
-(defn el [id] (js/document.getElementById id))
-
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
@@ -57,8 +55,7 @@
                   :onChange
                   #(update-local-state % owner key state)}))
 
-(defn update-state [e app-state index]
-  (println "update-state" (.. e -target -value) ":" index)
+(defn update-transform [e app-state index]
   (om/update! app-state [:index] index))
 
 (def toggle
@@ -97,7 +94,7 @@
     (dom/input #js {:type "radio"
                     :value value
                     :onChange
-                    #(update-state % app-state index)})))
+                    #(update-transform % app-state index)})))
 
 (defn transform-item [t index current-index app-state]
   (let [name (:name t)
@@ -283,6 +280,8 @@
                              "Clear")
                  (dom/div #js {:className "mouse-mode"}
                           (mouse-mode owner)))))))
+
+(defn el [id] (js/document.getElementById id))
 
 (om/root
  mobius-config

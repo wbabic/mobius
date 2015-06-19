@@ -74,7 +74,6 @@
   ([P degrees]
    (conjugate (rotation degrees) (translation P))))
 
-
 (defn image-circle
   "return the image of given circle C under
   given linear fractional transformation T"
@@ -101,16 +100,12 @@
   under lineer fractional transformation T"
   [T L]
   (let [[p1 p2] L
-        _ (print "pre-image line")
-        _ (prn L)
         m (v/midpoint p1 p2)
         T-fn #(mult T %)
         c #(complex/complex-rect %)
         Tp1 (T-fn (c p1))
         Tp2 (T-fn (c p2))
-        Tm (T-fn (c m))
-        _ (print "image points")
-        _ (prn (mapv #(complex/coords %) [Tp1 Tm Tp2]))]
+        Tm (T-fn (c m))]
     (if (some #(= infinity %) [Tp1 Tp2 Tm])
       (cond (= infinity Tp1) [:line (complex/coords Tp2) (complex/coords Tm)]
             (= infinity Tp2) [:line (complex/coords Tp1) (complex/coords Tm)]

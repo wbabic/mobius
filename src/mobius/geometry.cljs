@@ -42,9 +42,7 @@
   [p1 p2 p3]
   (let [c (intersection (perp-bisector [p1 p2]) (perp-bisector [p2 p3]))
         r (complex/distance p3 (complex/complex-rect c))
-        cc [:circle {:center c :radius r}]
-        _ (print "circumcircle: ")
-        _ (prn cc)]
+        cc [:circle {:center c :radius r}]]
     cc))
 
 (defn concentric-circles
@@ -118,8 +116,7 @@ need A and B to be real and B anc C complex conjugates"
         r-sq (- c-sq (/ D A))
         r (if (< r-sq 0)
             (complex/sqrt r-sq)
-            (Math/sqrt r-sq))
-        _ (println "c-sq: " c-sq " r-sq: " r-sq)]
+            (Math/sqrt r-sq))]
     [:circle {:center c-coords :radius r}]))
 
 (defn line-coords-from-matrix
