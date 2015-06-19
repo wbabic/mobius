@@ -83,13 +83,6 @@
         translate-inverse (v/translation [xi yf])]
     (comp translate-inverse scale-inverse)))
 
-(defn transform-fn
-  "returns function that transforms points in user space
-  to points in screen space"
-  ([config]
-   (let [m (user->screen config)]
-     (map m))))
-
 (defn render
   [data context t-fn]
   (match data

@@ -9,8 +9,6 @@
 
 (enable-console-print!)
 
-(println "mobius.core")
-
 (def canvas-1-config
   {:resolution [500 500]
    :domain [-4 4]
@@ -27,20 +25,20 @@
     :transforms t/transforms
     :render-list []}))
 
-(defn transform
+(defn current-transform
   "return current transform from dereferences state"
   [state]
   (let [i (:index state)]
     (get (:transforms state) i)))
 
-(defn t-fn
+(defn transform-fn
   "return current transform from dereferenced state"
   [state]
-  (let [t (transform state)]
+  (let [t (current-transform state)]
     (:transform t)))
 
 (defn image-fn [app-state]
-  #(t/image (t-fn @app-state) %))
+  #(t/image (transform-fn @app-state) %))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
@@ -49,16 +47,7 @@
   (println "reloading mobius.core ...")
   )
 
-(defn update-local-state [e owner key state]
-  (om/set-state! owner key (.. e -target -value)))
-
-(defn input [key value owner state]
-  (dom/input #js {:type "text"
-                  :value value
-                  :onChange
-                  #(update-local-state % owner key state)}))
-
-(defn update-transform [e app-state index]
+(defn update-transform-index [e app-state index]
   (om/update! app-state [:index] index))
 
 (def toggle
@@ -90,7 +79,7 @@
                                            :onChange
                                            #(update-mouse-mode % owner)})))))
 
-(defn select [index value checked app-state]
+(defn select-transform [index value checked app-state]
   (if checked
     (dom/input #js {:type "radio"
                     :value value
@@ -98,7 +87,7 @@
     (dom/input #js {:type "radio"
                     :value value
                     :onChange
-                    #(update-transform % app-state index)})))
+                    #(update-transform-index % app-state index)})))
 
 (defn transform-item [t index current-index app-state]
   (let [name (:name t)
@@ -107,7 +96,7 @@
      (dom/dt nil name)
      (dom/dd #js {:className "transform"}
              text
-             (select index name (= index current-index) app-state)))))
+             (select-transform index name (= index current-index) app-state)))))
 
 (defn transform-items
   "List available transforms and a means to select current transform"
@@ -238,23 +227,14 @@
 
 (comment
   (in-ns 'mobius.core)
-  ;; test out user-screen mapping
-  (let [m (draw/user->screen canvas-1-config)] [(m [0 0]) (m [1 0]) (m [0 1]) (m 1)])
-  ;;=> [[250 250] [275 250] [250 225] 25]
-
+  ;; user-screen mapping
   (let [m (draw/user->screen canvas-1-config)
         tf (map m)
         data [[0 0] [1 0] [0 1] 1 [-10 10] [10 -10]]]
     (sequence tf data))
   ;;=> ([250 250] [313 250] [250 188] 62.5 [-375 -375] [875 875])
 
-  ;; test out t-fn
-  (let [t-fn (draw/transform-fn canvas-1-config)
-        data [[0 0] [1 0] [0 1] 1]]
-    (sequence t-fn data))
-  ;;=> ([250 250] [275 250] [250 225] 25)
-
-  ;; screen ->  user mapping
+  ;; screen->user mapping
   (let [m-inv (draw/screen->user canvas-1-config)
         t-fn (map m-inv)
         data [[250 250] [313 250] [250 188] [-375 -375] [875 875]]]
