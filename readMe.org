@@ -136,6 +136,23 @@
     whein in rectangular mode
 
     also draw images of lines and circles in image canvas
+
+    mouse-mode-state lcoal state
+    :polar :reactangular
+
+    need
+    events channel: mouse-move, mouse-click
+    control channel
+    return channel
+
+    render list - list of things to be rendered during
+    interactive mouse mode
+    includes:
+    :axis :radial :concentric :horizontal :vertical
+
+    button clicks add them to the list
+    clear removes them
+
 *** add grandma's recipes
     add more linear fractional transformations,
     as found in Grandma's recipies

@@ -1,7 +1,8 @@
 (ns mobius.draw
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
-            [cljs.core.match :refer-macros [match]]))
+            [cljs.core.match :refer-macros [match]]
+            [mobius.events :as e]))
 
 (enable-console-print!)
 
@@ -110,13 +111,26 @@
          [:style s]
          (style context s)))
 
-(defn drawing-loop [id config]
-  (let [draw-chan (chan)
-        canvas (.getElementById js/document id)
-        context (.getContext canvas "2d")
-        t-fn (user->screen config)]
-    (go (loop [t-fn t-fn]
-          (let [draw-msg (<! draw-chan)]
-            (render draw-msg context t-fn)
-            (recur t-fn))))
-    draw-chan))
+(defn drawing-loop
+  ([id config]
+   (let [draw-chan (chan)
+         canvas (.getElementById js/document id)
+         context (.getContext canvas "2d")
+         t-fn (user->screen config)]
+     (go (loop [t-fn t-fn]
+           (let [draw-msg (<! draw-chan)]
+             (render draw-msg context t-fn)
+             (recur t-fn))))
+     draw-chan))
+  ([id config events]
+   (let [draw-chan (chan)
+         canvas (.getElementById js/document id)
+         context (.getContext canvas "2d")
+         t-fn (user->screen config)
+         ;; need inverse function to map screen coords back to user coords
+         event-chan (e/mouse-chan canvas :mouse-move :move)]
+     (go (loop [t-fn t-fn]
+           (let [draw-msg (<! draw-chan)]
+             (render draw-msg context t-fn)
+             (recur t-fn))))
+     [draw-chan event-chan])))

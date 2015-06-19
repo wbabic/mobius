@@ -24,7 +24,8 @@
 (defonce app-state
   (atom
    {:index 0
-    :transforms t/transforms}))
+    :transforms t/transforms
+    :render-list []}))
 
 (defn transform
   "return current transform from dereferences state"
@@ -207,6 +208,19 @@
     (init-state [_]
       {:mouse-mode {:polar false
                     :rectangular false}})
+    om/IWillMount
+    (will-mount [_]
+      (let [event-chan (om/get-shared owner :event-chan-1)
+            control-chan (om/get-shared owner :control-chan)
+            return-chan (chan)]
+        (go (loop []
+              (let [control-type (<! control-chan)]
+                (condp = control-type
+                  :mouse-mode
+                  (do
+                    )
+                  ))))))
+
     om/IRenderState
     (render-state [_ state]
       (let [mouse-mode-state (:mouse-mode state)
@@ -253,8 +267,15 @@
  mobius-config
  app-state
  {:target (el "mobius-config")
-  :shared {:draw-chan-1 (draw/drawing-loop "mobius-canvas-1" canvas-1-config)
-           :draw-chan-2 (draw/drawing-loop "mobius-canvas-2" canvas-2-config)}})
+  :shared (let [[draw-chan-1 event-chan-1]
+                (draw/drawing-loop "mobius-canvas-1"
+                                   canvas-1-config
+                                   [:mouse-move :mouse-down])
+                draw-chan-2 (draw/drawing-loop "mobius-canvas-2" canvas-2-config)]
+            {:draw-chan-1 draw-chan-1
+             :event-chan-1 event-chan-1
+             :draw-chan-2 draw-chan-2
+             :control-chan (chan)})})
 
 (comment
   (in-ns 'mobius.core)
