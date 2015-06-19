@@ -39,6 +39,9 @@
   (let [t (transform state)]
     (:transform t)))
 
+(defn image-fn [app-state]
+  #(t/image (t-fn @app-state) %))
+
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
@@ -114,88 +117,54 @@
            (flatten (for [[t i] (mapv vector transforms (range))]
                       (transform-item t i current-index app-state))))))
 
-(def clear
-  [[:style {:fill "grey"}]
-   [:rect [-4 4] [4 -4]]])
-
-(defn clear-screen [draw-chan]
-  (go (doseq [d clear]
-        (>! draw-chan d))))
-
-(defn concentric-circles
-  "generate sequence of circles
-  with given center and radii in range"
-  [center radii]
-  (let [c (fn [r] [:circle {:center center :radius r}])]
-    (for [r radii]
-      (c r))))
-
-(def colors ["red" "orange" "yellow" "green" "blue" "indigo" "violet"])
-
-(defn draw-axis
-  "send a sequence of real-axis imaginary-axis and unit circle"
-  [draw-chan-1 draw-chan-2]
-  (let [axis geom/axis
-        trans #(t/image (t-fn @app-state) %)]
-    (go
-      (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
-        (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-1 c)
-        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-2 (trans c))))))
-
-(defn draw-concentric-circles
-  "send a sequence of circles to the drawing channel"
-  [draw-chan-1 draw-chan-2]
-  (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))
-        trans #(t/image (t-fn @app-state) %)]
-    (go
-      (doseq [[c color] (map vector circles colors)]
-        (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-1 c)
-        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-2 (trans c))))))
-
-(defn draw-radial-lines
-  "send a sequence of radial lines to the drawing channel"
-  [draw-chan-1 draw-chan-2]
-  (let [lines (geom/radial-lines 12)
-        trans #(t/image (t-fn @app-state) %)]
-    (go
-      (doseq [[l c] (map vector lines (cycle colors))]
-        (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-1 l)
-        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
-
-(defn draw-horizontal-lines
-  "send a sequence of horizontal lines to the drawing channel"
-  [draw-chan-1 draw-chan-2]
-  (let [lines (geom/horizontal-lines 0.50)
-        trans #(t/image (t-fn @app-state) %)]
-    (go
-      (doseq [[l c] (map vector lines (repeat "blue"))]
-        (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-1 l)
-        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
-
-(defn draw-vertical-lines
-  "send a sequence of vertical lines to the drawing channel"
-  [draw-chan-1 draw-chan-2]
-  (let [lines (geom/vertical-lines 0.50)
-        trans #(t/image (t-fn @app-state) %)]
-    (go
-      (doseq [[l c] (map vector lines (repeat "orange"))]
-        (<! (timeout 800))
-        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-1 l)
-        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
+(defn drawing-buttons
+  "drawing buttons"
+  [app-state draw-chan-1 draw-chan-2]
+  (dom/div nil
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/draw-axis draw-chan-1
+                                               draw-chan-2
+                                               (image-fn app-state)
+                                               800))}
+                       "Axes and Unit Circle")
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/draw-concentric-circles
+                                draw-chan-1
+                                draw-chan-2
+                                (image-fn app-state)
+                                800))}
+                       "Concentric Circles")
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/draw-radial-lines
+                                draw-chan-1
+                                draw-chan-2
+                                (image-fn app-state)
+                                800))}
+                       "Radial Lines")
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/draw-horizontal-lines
+                                draw-chan-1
+                                draw-chan-2
+                                (image-fn app-state)
+                                800))}
+                       "Horizontal Lines")
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/draw-vertical-lines
+                                draw-chan-1
+                                draw-chan-2
+                                (image-fn app-state)
+                                800))}
+                       "Vertical Lines")
+           (dom/button #js {:onClick
+                            #(do
+                               (draw/clear-screen draw-chan-1)
+                               (draw/clear-screen draw-chan-2))}
+                       "Clear")))
 
 (defn handle-event
   "process move and click events from event-chan
@@ -247,37 +216,7 @@
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div nil
                  (transform-items app-state)
-
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (draw-axis draw-chan-1
-                                                draw-chan-2))}
-                             "Axes and Unit Circle")
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (draw-concentric-circles draw-chan-1
-                                                              draw-chan-2))}
-                             "Concentric Circles")
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (draw-radial-lines draw-chan-1
-                                                        draw-chan-2))}
-                             "Radial Lines")
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (draw-horizontal-lines draw-chan-1
-                                                            draw-chan-2))}
-                             "Horizontal Lines")
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (draw-vertical-lines draw-chan-1
-                                                          draw-chan-2))}
-                             "Vertical Lines")
-                 (dom/button #js {:onClick
-                                  #(do
-                                     (clear-screen draw-chan-1)
-                                     (clear-screen draw-chan-2))}
-                             "Clear")
+                 (drawing-buttons app-state draw-chan-1 draw-chan-2)
                  (dom/div #js {:className "mouse-mode"}
                           (mouse-mode owner)))))))
 

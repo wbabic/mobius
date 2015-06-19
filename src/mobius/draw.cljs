@@ -3,7 +3,8 @@
   (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
             [cljs.core.match :refer-macros [match]]
             [mobius.events :as e]
-            [mobius.vector :as v]))
+            [mobius.vector :as v]
+            [mobius.geometry :as geom]))
 
 (enable-console-print!)
 
@@ -129,3 +130,83 @@
              (render draw-msg context t-fn)
              (recur t-fn))))
      [draw-chan event-chan])))
+
+;; generic drawing utils
+(def clear
+  [[:style {:fill "grey"}]
+   [:rect [-4 4] [4 -4]]])
+
+(defn clear-screen [draw-chan]
+  (go (doseq [d clear]
+        (>! draw-chan d))))
+
+(defn concentric-circles
+  "generate sequence of circles
+  with given center and radii in range"
+  [center radii]
+  (let [c (fn [r] [:circle {:center center :radius r}])]
+    (for [r radii]
+      (c r))))
+
+(def colors ["red" "orange" "yellow" "green" "blue" "indigo" "violet"])
+
+(defn draw-axis
+  "send a sequence of real-axis imaginary-axis and unit circle"
+  [draw-chan-1 draw-chan-2 trans delay]
+  (let [axis geom/axis
+        ]
+    (go
+      (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
+        (<! (timeout delay))
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-2 (trans c))))))
+
+(defn draw-concentric-circles
+  "send a sequence of circles to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans delay]
+  (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))]
+    (go
+      (doseq [[c color] (map vector circles colors)]
+        (<! (timeout delay))
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-2 (trans c))))))
+
+(defn draw-radial-lines
+  "send a sequence of radial lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans delay]
+  (let [lines (geom/radial-lines 12)]
+    (go
+      (doseq [[l c] (map vector lines (cycle colors))]
+        (<! (timeout delay))
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l))))))
+
+(defn draw-horizontal-lines
+  "send a sequence of horizontal lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans delay]
+  (let [lines (geom/horizontal-lines 0.50)]
+    (go
+      (doseq [[l c] (map vector lines (repeat "blue"))]
+        (<! (timeout delay))
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l))))))
+
+(defn draw-vertical-lines
+  "send a sequence of vertical lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans delay]
+  (let [lines (geom/vertical-lines 0.50)]
+    (go
+      (doseq [[l c] (map vector lines (repeat "orange"))]
+        (<! (timeout delay))
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l))))))
