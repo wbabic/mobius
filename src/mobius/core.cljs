@@ -72,22 +72,23 @@
     (println "update: " name " value: " key)))
 
 (defn mouse-mode [owner]
-  (dom/dl nil
-          (dom/h3 nil "Mouse Mode")
-          (dom/dt nil "Polar")
-          (dom/dd nil
-                  (dom/input #js {:type "checkbox"
-                                  :name "mouse-mode"
-                                  :value "polar"
-                                  :onChange
-                                  #(update-mouse-mode % owner)}))
-          (dom/dt nil "Rect")
-          (dom/dd nil
-                  (dom/input #js {:type "checkbox"
-                                  :name "mouse-mode"
-                                  :value "rectangular"
-                                  :onChange
-                                  #(update-mouse-mode % owner)}))))
+  (dom/div #js {:className "mouse-mode"}
+           (dom/dl nil
+                   (dom/h3 nil "Mouse Mode")
+                   (dom/dt nil "Polar")
+                   (dom/dd nil
+                           (dom/input #js {:type "checkbox"
+                                           :name "mouse-mode"
+                                           :value "polar"
+                                           :onChange
+                                           #(update-mouse-mode % owner)}))
+                   (dom/dt nil "Rect")
+                   (dom/dd nil
+                           (dom/input #js {:type "checkbox"
+                                           :name "mouse-mode"
+                                           :value "rectangular"
+                                           :onChange
+                                           #(update-mouse-mode % owner)})))))
 
 (defn select [index value checked app-state]
   (if checked
@@ -217,8 +218,7 @@
         (dom/div nil
                  (transform-items app-state)
                  (drawing-buttons app-state draw-chan-1 draw-chan-2)
-                 (dom/div #js {:className "mouse-mode"}
-                          (mouse-mode owner)))))))
+                 (mouse-mode owner))))))
 
 (defn el [id] (js/document.getElementById id))
 

@@ -200,3 +200,7 @@
     test properties
 *** add complex sqrt
     with tests
+*** re factor draw
+    inta canvas specific stuff
+    and mobius stuuf
+    add svg impementation
