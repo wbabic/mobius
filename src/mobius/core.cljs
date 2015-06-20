@@ -3,6 +3,7 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [cljs.core.async :as async :refer [chan <! >! timeout]]
+            [cljs.core.match :refer-macros [match]]
             [mobius.draw :as draw]
             [mobius.geometry :as geom]
             [mobius.transforms :as t]))
@@ -156,20 +157,27 @@
                                (draw/clear-screen draw-chan-2))}
                        "Clear")))
 
+(defn next-step
+  "return new state for given event"
+  [event state]
+  (match event
+         [:click p] (conj state p)))
+
 (defn handle-event
   "process move and click events from event-chan
   update local state till complete
   then return new triangle in ret-chan"
   [owner event-chan ret-chan]
-  (go (loop [state {:step 0 :complete false}]
+  (go (loop [state []]
         (let [event (<! event-chan)
-              new-state nil ;; (triangle-transitioner event state)
-              _ (prn event)]
-          (if (:complete new-state)
+              new-state (next-step event state)
+              _ (prn event)
+              _ (prn new-state)]
+          (if (= (count new-state) 4)
             (do
               ;; is complete, so do not recur
               ;; (om/set-state! owner new-state)
-              (>! ret-chan :done))
+              (>! ret-chan [:done new-state]))
             (do
               ;; not complete, keep going
               ;; (om/set-state! owner new-state)
@@ -194,7 +202,8 @@
                 (condp = control-type
                   :mouse-mode
                   (do
-                    (handle-event owner event-chan return-chan))
+                    (handle-event owner event-chan return-chan)
+                    (prn (<! return-chan)))
                   ))))
         (go (>! control-chan :mouse-mode))))
 

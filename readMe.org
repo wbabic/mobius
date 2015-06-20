@@ -195,6 +195,7 @@
 *** DONE add unit tests
     CLOSED: [2015-06-18 Thu 10:28]
     unit
+*** add more comprehensive unit tests
 *** add test.check
     generative tests
     test properties
