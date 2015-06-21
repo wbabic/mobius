@@ -111,13 +111,13 @@
              (render draw-msg context t-fn)
              (recur t-fn))))
      draw-chan))
-  ([id config events]
+  ([id config events?]
    (let [draw-chan (chan)
          canvas (.getElementById js/document id)
          context (.getContext canvas "2d")
          t-fn (user->screen config)
          f-inv (map (screen->user config))
-         event-chan (e/mouse-chan canvas :mouse-down :click f-inv)]
+         event-chan (e/mouse-events canvas f-inv)]
      (go (loop [t-fn t-fn]
            (let [draw-msg (<! draw-chan)]
              (render draw-msg context t-fn)

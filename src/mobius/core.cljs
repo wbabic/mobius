@@ -161,7 +161,8 @@
   "return new state for given event"
   [event state]
   (match event
-         [:click p] (conj state p)))
+         [:click p] (conj state p)
+         [:move p] state))
 
 (defn handle-event
   "process move and click events from event-chan
@@ -227,7 +228,7 @@
   :shared (let [[draw-chan-1 event-chan-1]
                 (draw/drawing-loop "mobius-canvas-1"
                                    canvas-1-config
-                                   [:mouse-click])
+                                   true)
                 draw-chan-2 (draw/drawing-loop "mobius-canvas-2" canvas-2-config)]
             {:draw-chan-1 draw-chan-1
              :event-chan-1 event-chan-1

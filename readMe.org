@@ -115,7 +115,19 @@
     look at method from geometry of complex numbers
     where a generalized circle is repsesented as a Hermitian matrix
 
+*** drawing to canvas
+*** handling of events
+*** technologies used
+    core.async channels
+    transducers
+    data representing geometric entities
+    html, canvas, svg, css
+    clojurescript, cljsbuild, figwheel, brepl
+    om, react
+    core.match
+
 ** next steps
+*** define the behavior of this app
 *** DONE generalized circles
     CLOSED: [2015-06-14 Sun 16:58]
     calculate image of a
@@ -135,7 +147,9 @@
     or vertical and horizontal lines through mouse point
     when in rectangular mode
 
-    draw images of lines and/or circles in image canvas
+    lines and/or circles in pre-image canvas
+    are drawn simultaneously in image canvas
+    updated in both canvases as mouse moves
 
     mouse-mode-state lcoal state
     :polar :reactangular
@@ -153,6 +167,66 @@
 
     button clicks add them to the list
     clear removes them
+
+*** animation mode ideas
+    app is either in mouse mode or animation mode
+    in animation mode, mouse mode is disabled
+    display elements are rendered one at a time
+    on top of each other
+    they can be cleared or redrawn one at a time
+
+    in mouse mode, render list is displayed first
+    then mouse position, kept in local state is displayed
+
+    mouse mode can be used to create objects to be added to render list
+
+    animate button could render everything in render list,
+    in order added, one element at a time
+
+    mouse mode could use an offscreen buffer to redraw
+    everything in render list quickly
+
+    elements in render list consist of
+    predifined elements like axis, unit circle, rect grid lines
+    concentric circles about origin
+    radial lines through origin
+    or could consist of custom elements defined through
+    mouse mode and then added to render list
+
+    render list should be viewable and editable
+
+    switching transforms shoud triiger either
+    an animated redraw or
+    an instant redraw
+
+    once a render list is created, one could save as an svg or
+    save as data and send to server, or save on local file system, or both
+
+*** interactive mouse modes
+    modes for creating objects
+    or for viewing properties
+
+    make lines circles, triangles, quadrangles
+
+    view properties such as
+    orthogonal circles with two given centers
+    where the third point varies along the circle
+    with diameter equal to line between the two centers
+
+    perpendicular bisectors of a line or of three lines of a triangle
+
+    circumcircle through three points
+    where two points are fixed and the third varies
+
+    guides exist to make special objects like
+    isosceles triangles
+    equilateral triangles
+    right triangles
+    circumcircle of a triangle
+    families of orthogonal circles (generalized)
+    radial lines, paralell lines, concentric circles
+    circles tangent to a point
+    circles through two points
 
 *** add grandma's recipes
     add more linear fractional transformations,

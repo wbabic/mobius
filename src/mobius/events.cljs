@@ -5,7 +5,6 @@
             [goog.events :as events]))
 
 ;; mouse event utils
-
 (def event-map
   {:mouse-down goog.events.EventType.MOUSEDOWN
    :mouse-move goog.events.EventType.MOUSEMOVE
@@ -29,6 +28,11 @@
     (events->chan element event-type
                   (chan 1 (comp f t-fn g)))))
 
+(defn mouse-events [element t-fn]
+  (let [click-chan (mouse-chan element :mouse-down :click t-fn)
+        move-chan (mouse-chan element :mouse-move :move t-fn)]
+    (async/merge [click-chan move-chan])))
+
 (defn keys-chan []
   (events->chan js/window :key-down
                 (chan 1 (comp (map #(.-keyCode %))
@@ -47,7 +51,7 @@
         (prn m))))
 
   (let [canvas (.getElementById js/document "mobius-canvas-1")
-        ch (mouse-chan canvas :mouse-down :click)]
+        ch (mouse-events canvas identity)]
     (go
       (prn (<! ch))))
   )
