@@ -1,32 +1,5 @@
 * mobius transformations
-  linear fractional transformations of the extended complex plane
-  images of lines and circles
-
-  two complex planes
-  pre-image and image
-
-  stereographic projection in perspective
-
-** references
-   Indra's Pearls
-   The vision of felix Klein
-   Mumford, Series, Wright
-
-   Visual Complex Analysis
-   Tristan Needham
-
-   Geometry of Complex Numbers
-   Hans Schwerdttfeger
-
-   Introduction to the
-   Geometry of Complex Numbers
-   Roland Deaux
-
-   Introduction to Geometry
-   Coxeter
-
 ** idea
-   implement
    algebra and geometry of
    the extended complex numbers and
    linear fractional transformations
@@ -35,11 +8,50 @@
    points lines circles triangles
    and their images under application of linear fractional transformations
 
-   infinity and
+   two complex planes
+   pre-image and image
+
    stereographic projection
    the extended complex plane
    and the Reiman sphere
    in perspective
+
+** app behavior
+   app is either in mouse mode or animation mode
+   in animation mode, mouse mode is disabled
+
+   display elements are rendered one at a time
+   on top of each other
+
+   animate button will render everything in render list,
+   in order added, one element at a time
+   using an offscreen buffer to redraw
+   everything in render list quickly
+
+   in mouse mode, render list is displayed first
+   then mouse position, kept in local state, is displayed
+
+   mouse mode used to create objects to be added to render list
+
+   elements in render list consist of
+   predifined elements including
+   axis, unit circle,
+   rectangular grid lines
+   concentric circles about origin
+   radial lines through origin
+
+   custom elements defined through mouse mode
+   and then added to render list
+
+   render list should be viewable and editable
+
+   switching transforms shoud triger either
+   an animated redraw or an instant redraw
+
+   once a render list is created,
+   one could save as an svg or
+   save as data and send to server,
+   or save on local file system
 
 ** implementation
 *** vector
@@ -116,7 +128,15 @@
     where a generalized circle is repsesented as a Hermitian matrix
 
 *** drawing to canvas
+    draw.cljs
+    drawing-loop channel
+    graphics data
+
 *** handling of events
+    mouse click and move events put on events channel
+    event handler
+    control channel to start and stop
+
 *** technologies used
     core.async channels
     transducers
@@ -126,8 +146,25 @@
     om, react
     core.match
 
+** references
+   Indra's Pearls
+   The vision of felix Klein
+   Mumford, Series, Wright
+
+   Visual Complex Analysis
+   Tristan Needham
+
+   Geometry of Complex Numbers
+   Hans Schwerdttfeger
+
+   Introduction to the
+   Geometry of Complex Numbers
+   Roland Deaux
+
+   Introduction to Geometry
+   Coxeter
+
 ** next steps
-*** define the behavior of this app
 *** DONE generalized circles
     CLOSED: [2015-06-14 Sun 16:58]
     calculate image of a
@@ -167,40 +204,6 @@
 
     button clicks add them to the list
     clear removes them
-
-*** animation mode ideas
-    app is either in mouse mode or animation mode
-    in animation mode, mouse mode is disabled
-    display elements are rendered one at a time
-    on top of each other
-    they can be cleared or redrawn one at a time
-
-    in mouse mode, render list is displayed first
-    then mouse position, kept in local state is displayed
-
-    mouse mode can be used to create objects to be added to render list
-
-    animate button could render everything in render list,
-    in order added, one element at a time
-
-    mouse mode could use an offscreen buffer to redraw
-    everything in render list quickly
-
-    elements in render list consist of
-    predifined elements like axis, unit circle, rect grid lines
-    concentric circles about origin
-    radial lines through origin
-    or could consist of custom elements defined through
-    mouse mode and then added to render list
-
-    render list should be viewable and editable
-
-    switching transforms shoud triiger either
-    an animated redraw or
-    an instant redraw
-
-    once a render list is created, one could save as an svg or
-    save as data and send to server, or save on local file system, or both
 
 *** interactive mouse modes
     modes for creating objects

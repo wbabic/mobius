@@ -51,17 +51,27 @@
 (defn update-transform-index [e app-state index]
   (om/update! app-state [:index] index))
 
-(def toggle
+(def toggle-fn
   (fn [value] (if (true? value) false true)))
 
-(defn update-mouse-mode [e owner]
+(defn update-mouse-mode [e owner control-chan]
   (let [target (. e -target)
         name (. target -name)
         key (keyword (. target -value))]
-    (om/update-state! owner [:mouse-mode key] toggle)
-    (println "update: " name " value: " key)))
+    (println "update: " name " value: " key)
+    (:mouse-mode (om/update-state!
+                  owner [:mouse-mode key] toggle-fn))
+    (let [new-mouse-mode (om/get-state owner [:mouse-mode])
+          _ (print "new mouse mode:")
+          _ (prn new-mouse-mode)]
+      (go
+        (if (and (false? (:rectangular new-mouse-mode))
+                   (false? (:polar new-mouse-mode)))
 
-(defn mouse-mode [owner]
+            (>! control-chan :end)
+            (>! control-chan :start))))))
+
+(defn mouse-mode [owner control-chan]
   (dom/div #js {:className "mouse-mode"}
            (dom/dl nil
                    (dom/h3 nil "Mouse Mode")
@@ -71,14 +81,18 @@
                                            :name "mouse-mode"
                                            :value "polar"
                                            :onChange
-                                           #(update-mouse-mode % owner)}))
+                                           #(update-mouse-mode %
+                                                               owner
+                                                               control-chan)}))
                    (dom/dt nil "Rect")
                    (dom/dd nil
                            (dom/input #js {:type "checkbox"
                                            :name "mouse-mode"
                                            :value "rectangular"
                                            :onChange
-                                           #(update-mouse-mode % owner)})))))
+                                           #(update-mouse-mode %
+                                                               owner
+                                                               control-chan)})))))
 
 (defn select-transform [index value checked app-state]
   (if checked
@@ -184,6 +198,32 @@
               ;; (om/set-state! owner new-state)
               (recur new-state)))))))
 
+(defn handle-event-control
+  ""
+  [owner app-state event-chan control-chan]
+  (go (loop [state []]
+        (let [[event route] (async/alts! [event-chan control-chan])
+              new-state (next-step event state)
+              _ (prn event)
+              _ (prn new-state)]
+          (if (and (= route control-chan)
+                   (= event :end))
+            (do
+              ;; end
+              (println "ending handle-event loop: control-chan")
+              )
+            (if (= (count new-state) 3)
+              (do
+                ;; is complete, so do not recur
+                ;; update app-state
+                (println "ending handle-event loop: complete")
+                )
+              (do
+                ;; not complete,
+                ;; update local state and keep going
+                ;; (om/set-state! owner new-state)
+                (recur new-state))))))))
+
 (defn mobius-config
   "input form for mobius"
   [app-state owner]
@@ -201,23 +241,23 @@
               (let [control-type (<! control-chan)
                     _ (prn control-type)]
                 (condp = control-type
-                  :mouse-mode
-                  (do
-                    (handle-event owner event-chan return-chan)
-                    (prn (<! return-chan)))
-                  ))))
-        (go (>! control-chan :mouse-mode))))
+                  :start
+                  (handle-event-control owner app-state event-chan control-chan)
+                  :end (do
+                         ;; ended already?
+                         ))
+                (recur))))))
 
     om/IRenderState
     (render-state [_ state]
       (let [mouse-mode-state (:mouse-mode state)
-            _ (prn mouse-mode-state)
+            control-chan (om/get-shared owner :control-chan)
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div nil
                  (transform-items app-state)
                  (drawing-buttons app-state draw-chan-1 draw-chan-2)
-                 (mouse-mode owner))))))
+                 (mouse-mode owner control-chan))))))
 
 (defn el [id] (js/document.getElementById id))
 
