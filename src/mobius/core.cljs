@@ -1,5 +1,5 @@
 (ns mobius.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop alt!]])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [cljs.core.async :as async :refer [chan <! >! timeout]]
@@ -66,10 +66,9 @@
           _ (prn new-mouse-mode)]
       (go
         (if (and (false? (:rectangular new-mouse-mode))
-                   (false? (:polar new-mouse-mode)))
-
-            (>! control-chan :end)
-            (>! control-chan :start))))))
+                 (false? (:polar new-mouse-mode)))
+          (>! control-chan :end)
+          (>! control-chan :start))))))
 
 (defn mouse-mode [owner control-chan]
   (dom/div #js {:className "mouse-mode"}
@@ -174,55 +173,29 @@
 (defn next-step
   "return new state for given event"
   [event state]
+  (println "next-step: ")
+  (prn event)
   (match event
          [:click p] (conj state p)
          [:move p] state))
 
 (defn handle-event
-  "process move and click events from event-chan
-  update local state till complete
-  then return new triangle in ret-chan"
-  [owner event-chan ret-chan]
-  (go (loop [state []]
-        (let [event (<! event-chan)
-              new-state (next-step event state)
-              _ (prn event)
-              _ (prn new-state)]
-          (if (= (count new-state) 4)
-            (do
-              ;; is complete, so do not recur
-              ;; (om/set-state! owner new-state)
-              (>! ret-chan [:done new-state]))
-            (do
-              ;; not complete, keep going
-              ;; (om/set-state! owner new-state)
-              (recur new-state)))))))
+  [owner app-state event-chan]
+  (go-loop []
+    (let [event (<! event-chan)]
+      (prn event)
+      (recur))))
 
-(defn handle-event-control
-  ""
-  [owner app-state event-chan control-chan]
-  (go (loop [state []]
-        (let [[event route] (async/alts! [event-chan control-chan])
-              new-state (next-step event state)
-              _ (prn event)
-              _ (prn new-state)]
-          (if (and (= route control-chan)
-                   (= event :end))
-            (do
-              ;; end
-              (println "ending handle-event loop: control-chan")
-              )
-            (if (= (count new-state) 3)
-              (do
-                ;; is complete, so do not recur
-                ;; update app-state
-                (println "ending handle-event loop: complete")
-                )
-              (do
-                ;; not complete,
-                ;; update local state and keep going
-                ;; (om/set-state! owner new-state)
-                (recur new-state))))))))
+(defn toggle [in]
+  (let [out (chan)
+        ctr (chan)]
+    (go-loop [on false]
+      (recur
+       (alt!
+         in ([x] (when on (>! out x)) on)
+         ctr ([x] x))))
+    {:chan out
+     :ctr ctr}))
 
 (defn mobius-config
   "input form for mobius"
@@ -236,16 +209,17 @@
     (will-mount [_]
       (let [event-chan (om/get-shared owner :event-chan-1)
             control-chan (om/get-shared owner :control-chan)
-            return-chan (chan)]
+            c (toggle event-chan)
+            in (handle-event owner app-state (:chan c))
+            ctr (:ctr c)]
         (go (loop []
               (let [control-type (<! control-chan)
                     _ (prn control-type)]
                 (condp = control-type
                   :start
-                  (handle-event-control owner app-state event-chan control-chan)
-                  :end (do
-                         ;; ended already?
-                         ))
+                  (>! ctr true)
+                  :end
+                  (>! ctr false))
                 (recur))))))
 
     om/IRenderState
