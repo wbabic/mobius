@@ -124,7 +124,8 @@
 (defn drawing-buttons
   "drawing buttons"
   [app-state draw-chan-1 draw-chan-2]
-  (dom/div nil
+  (dom/div #js {:className "animations"}
+           (dom/h3 nil "Animations")
            (dom/button #js {:onClick
                             #(do
                                (draw/draw-axis draw-chan-1
@@ -229,7 +230,9 @@
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (dom/div nil
-                 (transform-items app-state)
+                 (dom/div #js {:className "select-transform"}
+                          (dom/h3 nil "Select Transform")
+                          (transform-items app-state))
                  (drawing-buttons app-state draw-chan-1 draw-chan-2)
                  (mouse-mode owner control-chan))))))
 

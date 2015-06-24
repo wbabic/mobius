@@ -124,6 +124,26 @@
              (recur t-fn))))
      [draw-chan event-chan])))
 
+;; animation functions
+(defn animate
+  "perform an animation of given data with given delay"
+  [animation-data-key delay draw-chan-1 draw-chan-2 animation-chan]
+  ;; set animation-mode to true
+  ;; send data to draw-channels
+  ;; when done, set animation-mode to false
+  )
+
+(defn render-data
+  "render data to drawing channels"
+  [data-key draw-chan-1 draw-chan-2])
+
+(comment
+  ;; to animate
+  (animate :axis 800 c-1 c-2 a-chan)
+  ;; to render
+  (render-data :axis c-1 c-2)
+  )
+
 ;; generic drawing utils
 (def clear
   [[:style {:fill "grey"}]
@@ -146,8 +166,7 @@
 (defn draw-axis
   "send a sequence of real-axis imaginary-axis and unit circle"
   [draw-chan-1 draw-chan-2 trans delay]
-  (let [axis geom/axis
-        ]
+  (let [axis geom/axis]
     (go
       (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
         (<! (timeout delay))

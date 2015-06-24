@@ -202,6 +202,13 @@
     includes:
     :axis :radial :concentric :horizontal :vertical
 
+    animating-mode
+    while in animating mode, temporarily disable mouse mode
+    indicate visually, somehow, that an animation is in place
+
+    separate drawing data from animation
+    allowing for quick redrawing while in mouse-mode
+
     button clicks add them to the list
     clear removes them
 
