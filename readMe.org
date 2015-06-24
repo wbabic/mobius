@@ -217,6 +217,7 @@
     or for viewing properties
 
     make lines circles, triangles, quadrangles
+    using mouse
 
     view properties such as
     orthogonal circles with two given centers
@@ -237,6 +238,27 @@
     radial lines, paralell lines, concentric circles
     circles tangent to a point
     circles through two points
+
+    the way it workd os like this:
+    local state contains current mouse-mode state
+    events update the state
+    in mouse-mode,
+    render draws the background from the app-state
+    and then the current mouse state on top
+
+    each mouse event triggers such a redraw
+
+    events include :move :click
+    :click could be a :mouse-down
+    followed by a :mouse-up
+    but for now, it is just a :mosue-down
+
+    now, while animating, we want to disable mouse mode,
+    this is because we are really focused on the animation
+    and the drawing mode is just one on top of the previous,
+    in sequence, with out redrawing - this could change,
+    but for now it is the way it is
+
 
 *** add grandma's recipes
     add more linear fractional transformations,

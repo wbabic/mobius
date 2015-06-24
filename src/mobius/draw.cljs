@@ -1,6 +1,7 @@
 (ns mobius.draw
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
+  (:require [om.core :as om :include-macros true]
+            [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
             [cljs.core.match :refer-macros [match]]
             [mobius.events :as e]
             [mobius.vector :as v]
@@ -124,25 +125,14 @@
              (recur t-fn))))
      [draw-chan event-chan])))
 
-;; animation functions
-(defn animate
-  "perform an animation of given data with given delay"
-  [animation-data-key delay draw-chan-1 draw-chan-2 animation-chan]
-  ;; set animation-mode to true
-  ;; send data to draw-channels
-  ;; when done, set animation-mode to false
-  )
 
-(defn render-data
-  "render data to drawing channels"
-  [data-key draw-chan-1 draw-chan-2])
+(defn add-animation [id app-state]
+  (println "adding animation: " id)
+  (om/transact! app-state :animations #(conj % id)))
 
-(comment
-  ;; to animate
-  (animate :axis 800 c-1 c-2 a-chan)
-  ;; to render
-  (render-data :axis c-1 c-2)
-  )
+(defn remove-animation [id app-state]
+  (println "removing animation: " id)
+  (om/transact! app-state :animations #(disj % id)))
 
 ;; generic drawing utils
 (def clear
@@ -164,8 +154,9 @@
 (def colors ["red" "orange" "yellow" "green" "blue" "indigo" "violet"])
 
 (defn draw-axis
-  "send a sequence of real-axis imaginary-axis and unit circle"
-  [draw-chan-1 draw-chan-2 trans delay]
+  "send a sequence of real-axis imaginary-axis and unit circle
+  with delay sending a message when done"
+  [draw-chan-1 draw-chan-2 trans delay done]
   (let [axis geom/axis]
     (go
       (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
@@ -173,11 +164,24 @@
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
         (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-2 (trans c)))
+      (<! (timeout 800))
+      (>! done :axis))))
+
+(defn render-axis
+  "send a sequence of real-axis imaginary-axis and unit circle"
+  [draw-chan-1 draw-chan-2 trans]
+  (let [axis geom/axis]
+    (go
+      (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-2 (trans c))))))
 
 (defn draw-concentric-circles
   "send a sequence of circles to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans delay]
+  [draw-chan-1 draw-chan-2 trans delay done]
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))]
     (go
       (doseq [[c color] (map vector circles colors)]
@@ -185,11 +189,24 @@
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
         (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-2 (trans c)))
+      (<! (timeout 800))
+      (>! done :concentric-circles))))
+
+(defn render-concentric-circles
+  "send a sequence of circles to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans]
+  (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))]
+    (go
+      (doseq [[c color] (map vector circles colors)]
+        (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
+        (>! draw-chan-1 c)
+        (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-2 (trans c))))))
 
 (defn draw-radial-lines
   "send a sequence of radial lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans delay]
+  [draw-chan-1 draw-chan-2 trans delay done]
   (let [lines (geom/radial-lines 12)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
@@ -197,11 +214,24 @@
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l)))
+      (<! (timeout 800))
+      (>! done :radial-lines))))
+
+(defn render-radial-lines
+  "send a sequence of radial lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans]
+  (let [lines (geom/radial-lines 12)]
+    (go
+      (doseq [[l c] (map vector lines (cycle colors))]
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
 
 (defn draw-horizontal-lines
   "send a sequence of horizontal lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans delay]
+  [draw-chan-1 draw-chan-2 trans delay done]
   (let [lines (geom/horizontal-lines 0.50)]
     (go
       (doseq [[l c] (map vector lines (repeat "blue"))]
@@ -209,11 +239,24 @@
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l)))
+      (<! (timeout 800))
+      (>! done :horizontal-lines))))
+
+(defn render-horizontal-lines
+  "send a sequence of horizontal lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans]
+  (let [lines (geom/horizontal-lines 0.50)]
+    (go
+      (doseq [[l c] (map vector lines (repeat "blue"))]
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
 
 (defn draw-vertical-lines
   "send a sequence of vertical lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans delay]
+  [draw-chan-1 draw-chan-2 trans delay done]
   (let [lines (geom/vertical-lines 0.50)]
     (go
       (doseq [[l c] (map vector lines (repeat "orange"))]
@@ -221,4 +264,80 @@
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-2 (trans l)))
+      (<! (timeout 800))
+      (>! done :vertical-lines))))
+
+(defn render-vertical-lines
+  "send a sequence of vertical lines to the drawing channel"
+  [draw-chan-1 draw-chan-2 trans]
+  (let [lines (geom/vertical-lines 0.50)]
+    (go
+      (doseq [[l c] (map vector lines (repeat "orange"))]
+        (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
+        (>! draw-chan-1 l)
+        (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-2 (trans l))))))
+
+;; animation functions
+(defn animate
+  "perform an animation of given data with given delay"
+  [app-state animation-data-key delay draw-chan-1 draw-chan-2 trans]
+  ;; set animation-mode to true
+  (add-animation animation-data-key app-state)
+
+  ;; send data to draw-channels
+  (let [done (chan)]
+    (condp = animation-data-key
+      :axis
+      (draw-axis draw-chan-1 draw-chan-2 trans 800 done)
+      :concentric-circles
+      (draw-concentric-circles draw-chan-1 draw-chan-2 trans 800 done)
+      :radial-lines
+      (draw-radial-lines draw-chan-1 draw-chan-2 trans 800 done)
+      :horizontal-lines
+      (draw-horizontal-lines draw-chan-1 draw-chan-2 trans 800 done)
+      :vertical-lines
+      (draw-vertical-lines draw-chan-1 draw-chan-2 trans 800 done)
+      )
+    ;; when done, set animation-mode to false
+    (go (let [animation-data-key (<! done)]
+          (remove-animation animation-data-key app-state)))))
+
+(defn render-data
+  "render data to drawing channels"
+  [app-state draw-chan-1 draw-chan-2 trans]
+  (let [render-list (:render-list app-state)]
+    (println "render-data")
+    (doseq [key render-list]
+      (println "render " key)
+      (match key
+             :axis
+             (render-axis draw-chan-1 draw-chan-2 trans)
+             :concentric-circles
+             (render-concentric-circles draw-chan-1 draw-chan-2 trans)
+             :radial-lines
+             (render-radial-lines draw-chan-1 draw-chan-2 trans)
+             :horizontal-lines
+             (render-horizontal-lines draw-chan-1 draw-chan-2 trans)
+             :vertical-lines
+             (render-vertical-lines draw-chan-1 draw-chan-2 trans)))))
+
+(defn render-mouse-point
+  [state draw-chan-1 draw-chan-2 trans]
+  (println "render-mouse-point")
+  (let [rect? (get-in state [:mouse-mode :rectangular])
+        polar? (get-in state [:mouse-mode :polar])
+        point (:mouse-point state)
+        style [:style {:stroke "yellow" :lineWidth 1}]]
+    (let [data (cond-> []
+                 polar? (into (geom/polar-point point))
+                 rect? (into (geom/rectangular-point point)))]
+      (prn data)
+      (go
+        (<! (timeout 800))
+        (>! draw-chan-1 style)
+        (>! draw-chan-2 style)
+        (doseq [d data]
+          (>! draw-chan-1 d)
+          (>! draw-chan-2 (trans d)))))))

@@ -24,7 +24,8 @@
   (atom
    {:index 0
     :transforms t/transforms
-    :render-list []}))
+    :render-list #{}
+    :animations #{}}))
 
 (defn current-transform
   "return current transform from dereferences state"
@@ -58,9 +59,8 @@
   (let [target (. e -target)
         name (. target -name)
         key (keyword (. target -value))]
-    (println "update: " name " value: " key)
-    (:mouse-mode (om/update-state!
-                  owner [:mouse-mode key] toggle-fn))
+    (om/update-state!
+     owner [:mouse-mode key] toggle-fn)
     (let [new-mouse-mode (om/get-state owner [:mouse-mode])
           _ (print "new mouse mode:")
           _ (prn new-mouse-mode)]
@@ -124,52 +124,41 @@
 (defn drawing-buttons
   "drawing buttons"
   [app-state draw-chan-1 draw-chan-2]
-  (dom/div #js {:className "animations"}
-           (dom/h3 nil "Animations")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/draw-axis draw-chan-1
-                                               draw-chan-2
-                                               (image-fn app-state)
-                                               800))}
-                       "Axes and Unit Circle")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/draw-concentric-circles
-                                draw-chan-1
-                                draw-chan-2
-                                (image-fn app-state)
-                                800))}
-                       "Concentric Circles")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/draw-radial-lines
-                                draw-chan-1
-                                draw-chan-2
-                                (image-fn app-state)
-                                800))}
-                       "Radial Lines")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/draw-horizontal-lines
-                                draw-chan-1
-                                draw-chan-2
-                                (image-fn app-state)
-                                800))}
-                       "Horizontal Lines")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/draw-vertical-lines
-                                draw-chan-1
-                                draw-chan-2
-                                (image-fn app-state)
-                                800))}
-                       "Vertical Lines")
-           (dom/button #js {:onClick
-                            #(do
-                               (draw/clear-screen draw-chan-1)
-                               (draw/clear-screen draw-chan-2))}
-                       "Clear")))
+  (let [animate (fn [id]
+                  (do
+                    ;; add animation to render list
+                    (om/transact! app-state :render-list (fn [s] (conj s id)))
+                    (draw/animate app-state id 800 draw-chan-1 draw-chan-2
+                                  (image-fn app-state))))]
+       (dom/div #js {:className "animations"}
+                (dom/h3 nil "Animations")
+                (dom/button #js {:onClick
+                                 #(animate :axis)}
+                            "Axes and Unit Circle")
+                (dom/button #js {:onClick
+                                 #(animate :concentric-circles)}
+                            "Concentric Circles")
+                (dom/button #js {:onClick
+                                 #(animate :radial-lines)}
+                            "Radial Lines")
+                (dom/button #js {:onClick
+                                 #(animate :horizontal-lines)}
+                            "Horizontal Lines")
+                (dom/button #js {:onClick
+                                 #(animate :vertical-lines)}
+                            "Vertical Lines")
+                (dom/button #js {:onClick
+                                 #(do
+                                    (draw/clear-screen draw-chan-1)
+                                    (draw/clear-screen draw-chan-2)
+                                    (om/update! app-state :render-list #{}))}
+                            "Clear")
+                (dom/div nil
+                         (dom/h3 nil "Current Animations")
+                         (let [animations (:animations app-state)]
+                           (if (> (count animations) 0)
+                             (pr-str animations)
+                             "none"))))))
 
 (defn next-step
   "return new state for given event"
@@ -184,7 +173,12 @@
   [owner app-state event-chan]
   (go-loop []
     (let [event (<! event-chan)]
-      (prn event)
+      (match event
+             [:move mouse-point] (do
+                                   )
+             [:click mouse-point] (do
+                                    (om/set-state! owner :mouse-point mouse-point)
+                                    (prn event)))
       (recur))))
 
 (defn toggle [in]
@@ -205,7 +199,8 @@
     om/IInitState
     (init-state [_]
       {:mouse-mode {:polar false
-                    :rectangular false}})
+                    :rectangular false}
+       :mouse-point nil})
     om/IWillMount
     (will-mount [_]
       (let [event-chan (om/get-shared owner :event-chan-1)
@@ -220,15 +215,37 @@
                   :start
                   (>! ctr true)
                   :end
-                  (>! ctr false))
+                  (do
+                    (om/set-state! owner :mouse-point nil)
+                    (>! ctr false)))
                 (recur))))))
 
     om/IRenderState
     (render-state [_ state]
       (let [mouse-mode-state (:mouse-mode state)
+            mouse-point (:mouse-point state)
+            animations (:animations app-state)
             control-chan (om/get-shared owner :control-chan)
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
+        (when (and
+               (or (true? (:rectangular mouse-mode-state))
+                   (true? (:polar mouse-mode-state)))
+               (= (count animations) 0)
+               (not (nil? mouse-point)))
+          (do
+            (println "mouse-mode is on!")
+            (println "mouse-point: ")
+            (prn mouse-point)
+            (draw/clear-screen draw-chan-1)
+            (draw/clear-screen draw-chan-2)
+            (draw/render-data app-state
+                              draw-chan-1
+                              draw-chan-2
+                              (image-fn app-state))
+            ;; draw local state
+            (draw/render-mouse-point state draw-chan-1 draw-chan-2
+                                     (image-fn app-state))))
         (dom/div nil
                  (dom/div #js {:className "select-transform"}
                           (dom/h3 nil "Select Transform")

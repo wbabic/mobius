@@ -77,6 +77,17 @@
     (for [j (range -4 4 step-size)]
       (v-line j))))
 
+(defn rectangular-point
+  [[x y]]
+  [[:line [x 0] [x y]]
+   [:line [0 y] [x y]]])
+
+(defn polar-point
+  [point]
+  (let [radius (v/len point)]
+    [[:line [0 0] point]
+     [:circle {:radius radius :center [0 0]}]]))
+
 ;; representation of circles and lines by hermitian matrices
 (defn circle-as-matrix
   "return matrix representing circle with given center and radius"
