@@ -188,28 +188,26 @@
     are drawn simultaneously in image canvas
     updated in both canvases as mouse moves
 
-    mouse-mode-state lcoal state
+    :mouse-mode lcoal state
     :polar :reactangular
+    :mouse-point
 
-    need
     events channel: mouse-move, mouse-click
-    control channel
-    return channel
-    screen->user fn
+    control channel: to start and stop mode
+    screen->user: to convert screen space to user space
 
     render list - list of things to be rendered during
-    interactive mouse mode
-    includes:
-    :axis :radial :concentric :horizontal :vertical
+    :axis :radial-lines :concentric-circles
+    :horizontal-lines :vertical-lines
 
     animating-mode
     while in animating mode, temporarily disable mouse mode
-    indicate visually, somehow, that an animation is in place
+    indicate visually that an animation is in place
 
     separate drawing data from animation
     allowing for quick redrawing while in mouse-mode
 
-    button clicks add them to the list
+    button clicks add them to the render-list
     clear removes them
 
 *** interactive mouse modes
@@ -258,7 +256,6 @@
     and the drawing mode is just one on top of the previous,
     in sequence, with out redrawing - this could change,
     but for now it is the way it is
-
 
 *** add grandma's recipes
     add more linear fractional transformations,

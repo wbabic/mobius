@@ -121,7 +121,8 @@
   (match CorL
          [:circle C] (image-circle T C)
          [:line p1 p2] (image-line T [p1 p2])
-         [:point p] [:point (complex/coords (mult T (complex/complex-rect p)))]))
+         [:point p] [:point (complex/coords (mult T (complex/complex-rect p)))]
+         :else CorL))
 
 (def transforms
   [{:name "Identity"

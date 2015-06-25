@@ -49,9 +49,6 @@
   (println "reloading mobius.core ...")
   )
 
-(defn update-transform-index [e app-state index]
-  (om/update! app-state [:index] index))
-
 (def toggle-fn
   (fn [value] (if (true? value) false true)))
 
@@ -70,28 +67,26 @@
           (>! control-chan :end)
           (>! control-chan :start))))))
 
+(defn mouse-mode-input [owner value control-chan]
+  (dom/input #js {:type "checkbox"
+                  :name "mouse-mode"
+                  :value value
+                  :onChange
+                  #(update-mouse-mode % owner control-chan)}))
+
 (defn mouse-mode [owner control-chan]
   (dom/div #js {:className "mouse-mode"}
            (dom/dl nil
                    (dom/h3 nil "Mouse Mode")
                    (dom/dt nil "Polar")
-                   (dom/dd nil
-                           (dom/input #js {:type "checkbox"
-                                           :name "mouse-mode"
-                                           :value "polar"
-                                           :onChange
-                                           #(update-mouse-mode %
-                                                               owner
-                                                               control-chan)}))
+                   (dom/dd nil (mouse-mode-input owner "polar"
+                                                 control-chan))
                    (dom/dt nil "Rect")
-                   (dom/dd nil
-                           (dom/input #js {:type "checkbox"
-                                           :name "mouse-mode"
-                                           :value "rectangular"
-                                           :onChange
-                                           #(update-mouse-mode %
-                                                               owner
-                                                               control-chan)})))))
+                   (dom/dd nil (mouse-mode-input owner "rectangular"
+                                                 control-chan)))))
+
+(defn update-transform-index [e app-state index]
+  (om/update! app-state [:index] index))
 
 (defn select-transform [index value checked app-state]
   (if checked
@@ -121,6 +116,11 @@
            (flatten (for [[t i] (mapv vector transforms (range))]
                       (transform-item t i current-index app-state))))))
 
+(defn drawing-button [key text fn]
+  (dom/button #js {:onClick
+                   #(fn key)}
+              text))
+
 (defn drawing-buttons
   "drawing buttons"
   [app-state draw-chan-1 draw-chan-2]
@@ -132,21 +132,11 @@
                                   (image-fn app-state))))]
        (dom/div #js {:className "animations"}
                 (dom/h3 nil "Animations")
-                (dom/button #js {:onClick
-                                 #(animate :axis)}
-                            "Axes and Unit Circle")
-                (dom/button #js {:onClick
-                                 #(animate :concentric-circles)}
-                            "Concentric Circles")
-                (dom/button #js {:onClick
-                                 #(animate :radial-lines)}
-                            "Radial Lines")
-                (dom/button #js {:onClick
-                                 #(animate :horizontal-lines)}
-                            "Horizontal Lines")
-                (dom/button #js {:onClick
-                                 #(animate :vertical-lines)}
-                            "Vertical Lines")
+                (drawing-button :axis "Axes and Unit Circle" animate)
+                (drawing-button :concentric-circles "Concentric Circle" animate)
+                (drawing-button :radial-lines "Radial Lines" animate)
+                (drawing-button :horizontal-lines "Horizontal Lines" animate)
+                (drawing-button :vertical-lines "Vertical Lines" animate)
                 (dom/button #js {:onClick
                                  #(do
                                     (draw/clear-screen draw-chan-1)
@@ -163,7 +153,6 @@
 (defn next-step
   "return new state for given event"
   [event state]
-  (println "next-step: ")
   (prn event)
   (match event
          [:click p] (conj state p)
@@ -174,11 +163,13 @@
   (go-loop []
     (let [event (<! event-chan)]
       (match event
-             [:move mouse-point] (do
-                                   )
-             [:click mouse-point] (do
-                                    (om/set-state! owner :mouse-point mouse-point)
-                                    (prn event)))
+             [:move mouse-point]
+             (do
+               (om/set-state! owner :mouse-point mouse-point))
+             [:click mouse-point]
+             (do
+               (om/set-state! owner :mouse-point mouse-point)
+               (prn event)))
       (recur))))
 
 (defn toggle [in]
@@ -209,15 +200,10 @@
             in (handle-event owner app-state (:chan c))
             ctr (:ctr c)]
         (go (loop []
-              (let [control-type (<! control-chan)
-                    _ (prn control-type)]
+              (let [control-type (<! control-chan)]
                 (condp = control-type
-                  :start
-                  (>! ctr true)
-                  :end
-                  (do
-                    (om/set-state! owner :mouse-point nil)
-                    (>! ctr false)))
+                  :start (>! ctr true)
+                  :end   (>! ctr false))
                 (recur))))))
 
     om/IRenderState
@@ -234,9 +220,6 @@
                (= (count animations) 0)
                (not (nil? mouse-point)))
           (do
-            (println "mouse-mode is on!")
-            (println "mouse-point: ")
-            (prn mouse-point)
             (draw/clear-screen draw-chan-1)
             (draw/clear-screen draw-chan-2)
             (draw/render-data app-state

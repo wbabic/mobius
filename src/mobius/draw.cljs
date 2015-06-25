@@ -173,7 +173,8 @@
   [draw-chan-1 draw-chan-2 trans]
   (let [axis geom/axis]
     (go
-      (doseq [[c color] (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
+      (doseq [[c color]
+              (map vector axis ["yellow" "blue" "cyan" "green" "magenta" "red"])]
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
         (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
@@ -329,15 +330,17 @@
   (let [rect? (get-in state [:mouse-mode :rectangular])
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
-        style [:style {:stroke "yellow" :lineWidth 1}]]
+        style-1 [:style {:stroke "yellow" :lineWidth 1}]
+        style-2 [:style {:stroke "blue" :lineWidth 1}]]
     (let [data (cond-> []
-                 polar? (into (geom/polar-point point))
-                 rect? (into (geom/rectangular-point point)))]
+                 polar? (into (interleave [style-1 style-2]
+                                          (geom/polar-point point)))
+                 rect?  (into (interleave [style-1 style-2]
+                                          (geom/rectangular-point point))))]
       (prn data)
       (go
+        ;; TODO wait till render is done - use a channel
         (<! (timeout 800))
-        (>! draw-chan-1 style)
-        (>! draw-chan-2 style)
         (doseq [d data]
           (>! draw-chan-1 d)
           (>! draw-chan-2 (trans d)))))))
