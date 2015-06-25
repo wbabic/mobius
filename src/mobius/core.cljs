@@ -58,9 +58,7 @@
         key (keyword (. target -value))]
     (om/update-state!
      owner [:mouse-mode key] toggle-fn)
-    (let [new-mouse-mode (om/get-state owner [:mouse-mode])
-          _ (print "new mouse mode:")
-          _ (prn new-mouse-mode)]
+    (let [new-mouse-mode (om/get-state owner [:mouse-mode])]
       (go
         (if (and (false? (:rectangular new-mouse-mode))
                  (false? (:polar new-mouse-mode)))
@@ -219,16 +217,11 @@
                    (true? (:polar mouse-mode-state)))
                (= (count animations) 0)
                (not (nil? mouse-point)))
-          (do
-            (draw/clear-screen draw-chan-1)
-            (draw/clear-screen draw-chan-2)
-            (draw/render-data app-state
-                              draw-chan-1
-                              draw-chan-2
-                              (image-fn app-state))
-            ;; draw local state
-            (draw/render-mouse-point state draw-chan-1 draw-chan-2
-                                     (image-fn app-state))))
+          ;; draw local state
+          (draw/render-local app-state state
+                             draw-chan-1
+                             draw-chan-2
+                             (image-fn app-state)))
         (dom/div nil
                  (dom/div #js {:className "select-transform"}
                           (dom/h3 nil "Select Transform")

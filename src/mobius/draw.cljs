@@ -127,11 +127,9 @@
 
 
 (defn add-animation [id app-state]
-  (println "adding animation: " id)
   (om/transact! app-state :animations #(conj % id)))
 
 (defn remove-animation [id app-state]
-  (println "removing animation: " id)
   (om/transact! app-state :animations #(disj % id)))
 
 ;; generic drawing utils
@@ -170,7 +168,7 @@
 
 (defn render-axis
   "send a sequence of real-axis imaginary-axis and unit circle"
-  [draw-chan-1 draw-chan-2 trans]
+  [draw-chan-1 draw-chan-2 trans done]
   (let [axis geom/axis]
     (go
       (doseq [[c color]
@@ -178,7 +176,8 @@
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
         (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-2 (trans c))))))
+        (>! draw-chan-2 (trans c)))
+      (>! done :axis))))
 
 (defn draw-concentric-circles
   "send a sequence of circles to the drawing channel"
@@ -196,14 +195,15 @@
 
 (defn render-concentric-circles
   "send a sequence of circles to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans]
+  [draw-chan-1 draw-chan-2 trans done]
   (let [circles (concentric-circles [0 0] (sort [1 1.5 (/ 2 3) 2 0.50 4 0.25]))]
     (go
       (doseq [[c color] (map vector circles colors)]
         (>! draw-chan-1 [:style {:stroke color :lineWidth 1}])
         (>! draw-chan-1 c)
         (>! draw-chan-2 [:style {:stroke color :lineWidth 1}])
-        (>! draw-chan-2 (trans c))))))
+        (>! draw-chan-2 (trans c)))
+      (>! done :concentric-circles))))
 
 (defn draw-radial-lines
   "send a sequence of radial lines to the drawing channel"
@@ -221,14 +221,15 @@
 
 (defn render-radial-lines
   "send a sequence of radial lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans]
+  [draw-chan-1 draw-chan-2 trans done]
   (let [lines (geom/radial-lines 12)]
     (go
       (doseq [[l c] (map vector lines (cycle colors))]
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
+        (>! draw-chan-2 (trans l)))
+      (>! done :radius))))
 
 (defn draw-horizontal-lines
   "send a sequence of horizontal lines to the drawing channel"
@@ -246,14 +247,15 @@
 
 (defn render-horizontal-lines
   "send a sequence of horizontal lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans]
+  [draw-chan-1 draw-chan-2 trans done]
   (let [lines (geom/horizontal-lines 0.50)]
     (go
       (doseq [[l c] (map vector lines (repeat "blue"))]
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
+        (>! draw-chan-2 (trans l)))
+      (>! done :horizontal-lines))))
 
 (defn draw-vertical-lines
   "send a sequence of vertical lines to the drawing channel"
@@ -271,14 +273,15 @@
 
 (defn render-vertical-lines
   "send a sequence of vertical lines to the drawing channel"
-  [draw-chan-1 draw-chan-2 trans]
+  [draw-chan-1 draw-chan-2 trans done]
   (let [lines (geom/vertical-lines 0.50)]
     (go
       (doseq [[l c] (map vector lines (repeat "orange"))]
         (>! draw-chan-1 [:style {:stroke c :lineWidth 1}])
         (>! draw-chan-1 l)
         (>! draw-chan-2 [:style {:stroke c :lineWidth 1}])
-        (>! draw-chan-2 (trans l))))))
+        (>! draw-chan-2 (trans l)))
+      (>! done :vertical-lines))))
 
 ;; animation functions
 (defn animate
@@ -307,26 +310,31 @@
 
 (defn render-data
   "render data to drawing channels"
-  [app-state draw-chan-1 draw-chan-2 trans]
-  (let [render-list (:render-list app-state)]
-    (println "render-data")
+  [app-state draw-chan-1 draw-chan-2 trans done]
+  (let [render-list (:render-list app-state)
+        ret-chan (chan)
+        n (count render-list)]
     (doseq [key render-list]
-      (println "render " key)
       (match key
              :axis
-             (render-axis draw-chan-1 draw-chan-2 trans)
+             (render-axis draw-chan-1 draw-chan-2 trans ret-chan)
              :concentric-circles
-             (render-concentric-circles draw-chan-1 draw-chan-2 trans)
+             (render-concentric-circles draw-chan-1 draw-chan-2 trans ret-chan)
              :radial-lines
-             (render-radial-lines draw-chan-1 draw-chan-2 trans)
+             (render-radial-lines draw-chan-1 draw-chan-2 trans ret-chan)
              :horizontal-lines
-             (render-horizontal-lines draw-chan-1 draw-chan-2 trans)
+             (render-horizontal-lines draw-chan-1 draw-chan-2 trans ret-chan)
              :vertical-lines
-             (render-vertical-lines draw-chan-1 draw-chan-2 trans)))))
+             (render-vertical-lines draw-chan-1 draw-chan-2 trans ret-chan)))
+    (go
+      (loop [c 0]
+        (when (< c n)
+          (<! ret-chan)
+          (recur (inc c))))
+      (>! done :done))))
 
 (defn render-mouse-point
   [state draw-chan-1 draw-chan-2 trans]
-  (println "render-mouse-point")
   (let [rect? (get-in state [:mouse-mode :rectangular])
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
@@ -337,10 +345,18 @@
                                           (geom/polar-point point)))
                  rect?  (into (interleave [style-1 style-2]
                                           (geom/rectangular-point point))))]
-      (prn data)
       (go
-        ;; TODO wait till render is done - use a channel
-        (<! (timeout 800))
         (doseq [d data]
           (>! draw-chan-1 d)
           (>! draw-chan-2 (trans d)))))))
+
+(defn render-local
+  [app-state local-state ch-1 ch-2 trans]
+  (let [ret-chan (chan)]
+    (go
+      (clear-screen ch-1)
+      (clear-screen ch-2)
+      (render-data app-state ch-1 ch-2 trans ret-chan)
+      ;; wait for render-data to complete
+      (<! ret-chan)
+      (render-mouse-point local-state ch-1 ch-2 trans))))
