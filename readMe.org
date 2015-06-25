@@ -129,26 +129,40 @@
 
 *** drawing to canvas
     draw.cljs
-    drawing-loop channel
-    graphics data
+    basic geometric primitives of
+    point line triangle circle rect
+    style
+
+    rendered to a canvas context
+    by sending data to a care.async channel
+
+    a drawing-loop channel
+    that renders recieved messages to a graphics context
+
+    larger geometric objects
+    constructed from a sequence of basic primitives
 
 *** handling of events
     mouse click and move events put on events channel
-    event handler
-    control channel to start and stop
+    handled by an event handler
+    with a control channel to start and stop
 
 *** technologies used
+    om, react
+    core.match
     core.async channels
     transducers
     data representing geometric entities
-    html, canvas, svg, css
+    html, canvas, css
+    svg (not yet implemented)
     clojurescript, cljsbuild, figwheel, brepl
-    om, react
-    core.match
 
-** references
+** math references
+   Introduction to Geometry
+   Coxeter
+
    Indra's Pearls
-   The vision of felix Klein
+   The vision of Felix Klein
    Mumford, Series, Wright
 
    Visual Complex Analysis
@@ -160,9 +174,6 @@
    Introduction to the
    Geometry of Complex Numbers
    Roland Deaux
-
-   Introduction to Geometry
-   Coxeter
 
 ** next steps
 *** DONE generalized circles
@@ -188,15 +199,15 @@
     are drawn simultaneously in image canvas
     updated in both canvases as mouse moves
 
-    :mouse-mode lcoal state
-    :polar :reactangular
+    lcoal state
+    :mouse-mode :polar :reactangular
     :mouse-point
 
     events channel: mouse-move, mouse-click
     control channel: to start and stop mode
     screen->user: to convert screen space to user space
 
-    render list - list of things to be rendered during
+    render list - list of things to be rendered
     :axis :radial-lines :concentric-circles
     :horizontal-lines :vertical-lines
 
@@ -207,7 +218,7 @@
     separate drawing data from animation
     allowing for quick redrawing while in mouse-mode
 
-    button clicks add them to the render-list
+    animation button clicks add animations to the render-list
     clear removes them
 
 *** interactive mouse modes
@@ -257,7 +268,7 @@
     in sequence, with out redrawing - this could change,
     but for now it is the way it is
 
-*** add grandma's recipes
+*** grandma's recipes
     add more linear fractional transformations,
     as found in Grandma's recipies
 
@@ -293,6 +304,8 @@
     determinant
     trace
     inverse
+    fixed points
+
 *** allow for conjugation
     with translation, rotation, scaling
 *** DONE add unit tests
@@ -308,3 +321,61 @@
     inta canvas specific stuff
     and mobius stuuf
     add svg impementation
+*** extend line segment
+    line between two points
+    should sometimes be extended to a whole line
+
+    would be nice to be able to distinguish the three parts
+    given two points, p1 p2,
+    the three parts are
+    the finite segment p1 to p2
+    the infinite segments
+    from infinity to p1 and
+    from p2 to infinity
+
+    and then the image of the three parts
+    could also be distinguished
+
+    as an example, consider mouse-mode, rectangular
+    the vertical line consists of
+    point to real axis
+    and then to infinity
+    and from point to infinity
+    and simalarly for horizontal lines but with imaginary axis
+*** three points make a circle
+    the circumcircle of a triangle, if not collinear
+
+    when the image of a line is a circle,
+    the three points of the image circle are
+    images of p1 p2 and infinity
+    and just as the lien between two points makes three segments
+    so does the image circle of a line
+    that is, three corresponding arcs of a circle
+
+    an example is under the Cayley transformation,
+    in mouse-mode, polar, the line from the mouse point through the origin
+    the three points are the origin, the mouse point, and infinity
+    the line should have three distinctive parts
+    as well as its image
+    whether its image is a line or a circle
+
+    0 1 i
+    line 0 1 -> unit circle
+    line 0 i -> real axis
+    infinity -> one
+    unit circle -> imaginary axis
+
+    circles inside unit circle
+    circles outside unit circle
+
+    see how a line is really just a circle of infinite radius
+*** express circle by three points
+    as an alternative representation,
+    in addition to center radius representation
+    a circle can be represented by three points
+    that is the circumcirlce of the triangle
+    consisting of the three given points
+
+    in case the three points are colliner,
+    then the circle is really a line,
+    which is a circle in the generalized sense

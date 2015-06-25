@@ -11,6 +11,7 @@
 
 (def radius 2)
 
+;; functions to render basic geometric primitives to a canvas context
 (defn point [context [x y]]
   (.beginPath context)
   (.arc context x y radius 0 (* 2 Math/PI) false)
@@ -339,7 +340,7 @@
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
         style-1 [:style {:stroke "yellow" :lineWidth 1}]
-        style-2 [:style {:stroke "blue" :lineWidth 1}]]
+        style-2 [:style {:stroke "cyan" :lineWidth 1}]]
     (let [data (cond-> []
                  polar? (into (interleave [style-1 style-2]
                                           (geom/polar-point point)))
