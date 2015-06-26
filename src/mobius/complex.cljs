@@ -230,3 +230,8 @@
          [i infinity one zero (complex/complex-rect [1 1]) (complex/complex-rect [2 1])]))
 
   )
+
+(defn midpoint
+  "midpoint -f two complex numbers"
+  [z w]
+  (mult (add z w) (/ 2)))

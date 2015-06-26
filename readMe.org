@@ -379,3 +379,22 @@
     in case the three points are colliner,
     then the circle is really a line,
     which is a circle in the generalized sense
+
+*** parameterized circle
+    z = (at + b)/(ct + d)
+    generalized equation
+    z*zbar + a*z + abar*zbar + b = 0
+    center = -abar
+    radius = a*abar - b
+
+    example: z = (1 + it)/(1 - it)
+    z1 z0 zinfinity
+
+    constructed and
+    calibrated
+
+    see Deaux
+
+*** geometry and complex numbers
+    including infinity
+    circle through infinity is a line

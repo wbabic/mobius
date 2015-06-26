@@ -21,16 +21,12 @@
         l (line-coords p1 p2)]
     (point-on-line? p3 l)))
 
-(defn complex-midpoint
-  [z w]
-  (complex/mult (add z w) (/ 2)))
-
 (defn perp-bisector
   "return perp bisector of line segment z w
   where z and w are complex numbers not equal to infinity
   and result is returned as two complex numbers"
   [[z w]]
-  (let [m (complex-midpoint z w)
+  (let [m (complex/midpoint z w)
         t #(add m %)
         t-inv #(add (minus m) %)
         r #(complex/mult i %)
@@ -172,7 +168,7 @@ need A and B to be real and B anc C complex conjugates"
 
 (defn param-line
   "given two endpoints return function
-  of parameteriezed linem"
+  of parameterized linem"
   [A B]
   (fn [t]
     (v/sum A (v/scal-mul t (v/sum B (v/scal-mul -1 A))))))
@@ -260,4 +256,24 @@ need A and B to be real and B anc C complex conjugates"
     [(intersection l1 l2)])
   ;;=> [[0 0]]
 
+  )
+
+;; parameterized circles
+(defn param-circle
+  "returns a parameterized circle
+  given four complex numbers
+  where :infinity is accepted"
+  [a b c d]
+  (fn [t]
+    (if (= t :infinity)
+      (complex/div a c)
+      (complex/div (complex/add (complex/mult a t) b)
+                   (complex/add (complex/mult c t) d)))))
+
+(comment
+  ;; unit circle
+  (let [c1 (param-circle i one (minus i) one)
+        data [0 1 :infinity -1]]
+    (mapv (comp complex/coords  c1) data))
+  ;;=> [[1 0] [0 1] [-1 0] [0 -1]]
   )
