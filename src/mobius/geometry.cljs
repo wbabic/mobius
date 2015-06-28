@@ -85,6 +85,7 @@
      [:circle {:radius radius :center [0 0]}]]))
 
 ;; representation of circles and lines by hermitian matrices
+;; from schwerdtfeger
 (defn circle-as-matrix
   "return matrix representing circle with given center and radius"
   [center radius]
@@ -256,24 +257,4 @@ need A and B to be real and B anc C complex conjugates"
     [(intersection l1 l2)])
   ;;=> [[0 0]]
 
-  )
-
-;; parameterized circles
-(defn param-circle
-  "returns a parameterized circle
-  given four complex numbers
-  where :infinity is accepted"
-  [a b c d]
-  (fn [t]
-    (if (= t :infinity)
-      (complex/div a c)
-      (complex/div (complex/add (complex/mult a t) b)
-                   (complex/add (complex/mult c t) d)))))
-
-(comment
-  ;; unit circle
-  (let [c1 (param-circle i one (minus i) one)
-        data [0 1 :infinity -1]]
-    (mapv (comp complex/coords  c1) data))
-  ;;=> [[1 0] [0 1] [-1 0] [0 -1]]
   )

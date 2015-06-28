@@ -156,6 +156,9 @@
      (plus z w)))
   ([z w & rest] (reduce plus (plus z w) rest)))
 
+(defn sub [z w]
+  (add z (minus w)))
+
 (defn mult
   "multiply complex numbers"
   ([] one)
@@ -235,3 +238,70 @@
   "midpoint -f two complex numbers"
   [z w]
   (mult (add z w) (/ 2)))
+
+;; parameterized circles
+;; from deaux
+(defn param-circle
+  "returns a parameterized circle
+  given four complex numbers
+  where :infinity is accepted"
+  [a b c d]
+  (fn [t]
+    (if (= t :infinity)
+      (div a c)
+      (div (add (mult a t) b)
+                   (add (mult c t) d)))))
+
+(defn three-point->param
+  [p q r]
+  (let [a (mult r (sub p q))
+        b (mult q (sub r p))
+        c (sub p q)
+        d (sub r p)]
+    [a b c d]))
+
+(defn circle
+  "return a parameterized circle through the trhee given complex numbers"
+  [p q r]
+  (apply param-circle (three-point->param p q r)))
+
+(defn f [u v]
+  (sub (mult u (conjugate v)) (mult v (conjugate u))))
+
+(defn g [a b c d] (sub (mult a (conjugate d)) (mult b (conjugate c))))
+
+(defn param->general
+  "return given parameterized circle in general form
+  "
+  [a b c d]
+  (let [ alpha-bar (minus (div (g a b c d) (f c d)))
+        beta (minus (div (f a b) (f c d)))]
+    [one (conjugate alpha-bar) alpha-bar beta]))
+
+(defn param->standard
+  [a b c d]
+  (let [[_ alpha alpha-bar beta] (param->general a b c d)]
+    [:circle {:center (coords (minus alpha-bar))
+              :radius (length (sub (mult alpha alpha-bar) beta))}]))
+
+(comment
+  (mapv coords (three-point->param i one (minus one)))
+  ;;=> [[1 -1] [-1 -1] [-1 1] [-1 -1]]
+
+  ;; unit circle
+  (let [c1 (param-circle i one (minus i) one)
+        data [0 1 :infinity -1]]
+    (mapv (comp coords c1) data))
+  ;;=> [[1 0] [0 1] [-1 0] [0 -1]]
+
+  (let [s1 (circle i one (minus one))
+        data [0 1 :infinity -1]]
+    (mapv (comp coords s1) data))
+  ;;=> [[1 0] [0 1] [-1 0] [0 -1]]
+
+  (mapv coords (apply param->general (three-point->param i one (minus one))))
+  ;;=> [[1 0] [0 0] [0 0] [1 0]]
+
+  (apply param->standard (three-point->param i one (minus one)))
+  ;;=> [:circle {:center [0 0], :radius 1}]
+  )
