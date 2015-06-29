@@ -244,7 +244,7 @@
 (defn param-circle
   "returns a parameterized circle
   given four complex numbers
-  where :infinity is accepted"
+  where :infinity is an accepted value"
   [a b c d]
   (fn [t]
     (if (= t :infinity)
@@ -302,6 +302,7 @@
   (mapv coords (apply param->general (three-point->param i one (minus one))))
   ;;=> [[1 0] [0 0] [0 0] [1 0]]
 
+  ;; circle passing through one i and -one is the unit circle
   (apply param->standard (three-point->param i one (minus one)))
   ;;=> [:circle {:center [0 0], :radius 1}]
   )
