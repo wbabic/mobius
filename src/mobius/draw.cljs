@@ -5,7 +5,8 @@
             [cljs.core.match :refer-macros [match]]
             [mobius.events :as e]
             [mobius.vector :as v]
-            [mobius.geometry :as geom]))
+            [mobius.geometry :as geom]
+            [mobius.geometry.circle :as c]))
 
 (enable-console-print!)
 
@@ -339,11 +340,11 @@
   (let [rect? (get-in state [:mouse-mode :rectangular])
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
+        line-data (c/render (c/radial-line-from-point point))
         style-1 [:style {:stroke "yellow" :lineWidth 1}]
         style-2 [:style {:stroke "cyan" :lineWidth 1}]]
     (let [data (cond-> []
-                 polar? (into (interleave [style-1 style-2]
-                                          (geom/polar-point point)))
+                 polar? (into line-data)
                  rect?  (into (interleave [style-1 style-2]
                                           (geom/rectangular-point point))))]
       (go

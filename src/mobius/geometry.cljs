@@ -15,7 +15,7 @@
 (declare line-coords)
 (declare intersection)
 (defn collinear?
-  "return true if given points are collinear"
+  "return true if given complex numbers are collinear"
   [c1 c2 c3]
   (let [[p1 p2 p3] (mapv complex/coords [c1 c2 c3])
         l (line-coords p1 p2)]
@@ -34,7 +34,7 @@
     [(f z) (f w)]))
 
 (defn circumcircle
-  "return circumcircle of given non collinear points"
+  "return circumcircle of given non collinear complex numbers"
   [p1 p2 p3]
   (let [c (intersection (perp-bisector [p1 p2]) (perp-bisector [p2 p3]))
         r (complex/distance p3 (complex/complex-rect c))

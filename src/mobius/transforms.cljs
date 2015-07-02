@@ -140,14 +140,3 @@
    {:name "S1"
     :text "z -> (1 + 0.4i)z"
     :transform S1}])
-
-(comment
-  (let [T #(mult T3 %)
-        l1 [zero one infinity]
-        l2 [zero i infinity]
-        c1 [one i (minus one)]
-        tv #(mapv (comp complex/coords T) %)]
-    (mapv tv [l1 l2 c1]))
-  [[[-1 0] [0 -1] [1 0]]
-   [[-1 0] [0 0] [1 0]]
-   [[0 -1] [0 0] [0 1]]])

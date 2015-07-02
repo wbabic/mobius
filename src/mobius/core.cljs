@@ -6,7 +6,8 @@
             [cljs.core.match :refer-macros [match]]
             [mobius.draw :as draw]
             [mobius.geometry :as geom]
-            [mobius.transforms :as t]))
+            [mobius.transforms :as t]
+            [mobius.geometry.circle :as circle]))
 
 (enable-console-print!)
 
@@ -187,8 +188,7 @@
   (reify
     om/IInitState
     (init-state [_]
-      {:mouse-mode {:polar false
-                    :rectangular false}
+      {:mouse-mode {:polar false :rectangular false}
        :mouse-point nil})
     om/IWillMount
     (will-mount [_]
