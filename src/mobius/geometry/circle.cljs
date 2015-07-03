@@ -48,7 +48,7 @@
 (defn param-line
   "the parameterized line between two complex numbers"
   [z w]
-  (fn [t] (c/plus (c/mult z (- 1 t)) (c/mult w t))))
+  (fn [t] (add (mult z (- 1 t)) (mult w t))))
 
 (defn plus-infinity
   "return largest point on line within user space (r = 4)"
@@ -70,13 +70,6 @@
           (= infinity z2) [z1 (plus-infinity z3 z1)]
           :else [z1 z2])]
     [:line (c/coords w1) (c/coords w2)]))
-
-(defn arc
-  "arc between two complex numbers"
-  [z1 z2 center radius]
-  (let [start (c/arg z1)
-        end (+ (c/arg (div z2 z1)))]
-    [:arc {:center center :radius radius :start start :end end}]))
 
 (defn render-line
   "render line l consisting of three collinear points
@@ -105,21 +98,32 @@
                         [:point (c/coords z3)]]))]
     (concat lines points)))
 
+(defn arc
+  "arc between two complex numbers"
+  [center radius start end]
+  [:arc {:center center :radius radius :start start :end end}])
+
+(defn args
+  "arguments of three complex numbers"
+  [z1 z2 z3]
+  [(c/arg z1) (c/arg z2) (c/arg z3)])
+
 (defn render-circle
   "assumes g-circle is not a line"
   [g-circle color-scheme]
   (let [[z1 z2 z3] g-circle
+        [a1 a2 a3] (args z1 z2 z3)
         [p1 p2 p3] (mapv c/coords g-circle)
         circle (circumcircle g-circle)
         {:keys [center radius]} (second circle)
         arcs [(l-style :s1 color-scheme)
-              (arc z1 z2 center radius)
+              (arc center radius a1 a2)
 
               (l-style :s2 color-scheme)
-              (arc z2 z3 center radius)
+              (arc center radius a2 a3)
 
               (l-style :s3 color-scheme)
-              (arc z3 z1 center radius)]
+              (arc center radius a3 a1)]
         points [(p-style :p1 color-scheme)
                 [:point p1]
                 (p-style :p2 color-scheme)
@@ -149,21 +153,12 @@
 
  (comment
   ;; real-axis
-  ((render [zero one infinity])
+   (render [zero one infinity])
 
    (render [zero i infinity])
    (render [one i (minus one)])
 
    (render (radial-line-from-point [-4 -2]))
-   ([:style {:stroke "red"}]
-    [:line [0 0] [-4 -2]]
-    [:style {:stroke "green"}]
-    [:line [-4 -2] [-400000000000 -200000000000]]
-    [:style {:stroke "blue"}]
-    [:line [399999999996 199999999998] [0 0]]
-    [:style {:stroke "grey", :fill "cyan"}]
-    [:point [0 0]] [:style {:stroke "grey", :fill "magenta"}]
-    [:point [-4 -2]])
 
    (let [T #(t/mult t/J %)
          l1 [zero one infinity]
@@ -174,33 +169,7 @@
    ;;=> [["infinity" [1 0] [0 0]] ["infinity" [0 -1] [0 0]] [[1 0] [0 -1] [-1 0]]]
 
    (render [zero one infinity])
-   ([:style {:stroke "red"}]
-    [:line [0 0] [1 0]]
-    [:style {:stroke "green"}]
-    [:line [1 0] [109 0]]
-    [:style {:stroke "blue"}]
-    [:line [-108 0] [0 0]]
-    [:style {:stroke "grey", :fill "cyan"}]
-    [:point [0 0]]
-    [:style {:stroke "grey", :fill "magenta"}]
-    [:point [1 0]])
-
    (render [infinity one zero])
-   ([:style {:stroke "red"}]
-    [:line [109 0] [1 0]]
-
-    [:style {:stroke "green"}]
-    [:line [1 0] [0 0]]
-
-    [:style {:stroke "blue"}]
-    [:line [0 0] [-108 0]]
-
-    [:style {:stroke "grey", :fill "magenta"}]
-    [:point [1 0]]
-
-    [:style {:stroke "grey", :fill "yellow"}]
-    [:point [0 0]])
-
    (let [z (c/complex-rect [1 -1])
          l [zero z infinity]
          T  #(t/mult t/J %)
@@ -209,19 +178,19 @@
       (mapv c/coords Tl)
       (render l)
       (render Tl)])
-   [[[0 0] [1 -1] "infinity"] ["infinity" [0.5 0.5] [0 0]]
-    ([:style {:stroke "red"}]
-     [:line [500 500] [0.5 0.5]]
-     [:style {:stroke "green"}]
-     [:line [0.5 0.5] [0 0]]
-     [:style {:stroke "blue"}]
-     [:line [0 0] [-499.5 -499.5]]
-     [:style {:stroke "grey", :fill "magenta"}]
-     [:point [0.5 0.5]]
-     [:style {:stroke "grey", :fill "yellow"}]
-     [:point [0 0]])]
+
+
+   (mapv c/coords (circle-through-point [1 1]))
+   ;;=> [[1 1] [-1 1] [-1 -1]]
 
    (render (circle-through-point [1 1]))
+   (mapv (comp c/rad->deg c/arg) (circle-through-point [1 1]))
+   (let [c1 (circle-through-point [1 1])
+         T #(t/mult t/J %)
+         c2 (mapv T c1)
+         f #(mapv c/coords %)
+         g #(mapv (comp c/rad->deg c/arg) %)]
+     [(g c1) (g c2)])
+   ;;=> [[45 134.99999999999994 225] [315 225 134.99999999999994]]
 
-
-   ))
+   )

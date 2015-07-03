@@ -61,46 +61,15 @@
              (complex. (/ x d) (/ (- y) d))))
   (conjugate [_] (complex. x (- y)))
   (length [_] (v/len [x y]))
-  (arg [_] (v/angle [x y])))
+  (arg [_] (mod-tau (v/angle [x y]))))
 
 (defn complex-rect [[x y]]
   (if (and (zero? x) (zero? y))
     zero
     (complex. x y)))
-
+(def c complex-rect)
 (def one (complex-rect [1 0]))
 (def i (complex-rect [0 1]))
-
-(defrecord polar [r alpha]
-  Complex
-  (coords [_] (polar->rect r (deg->rad alpha)))
-  (arg [_] alpha)
-  (length [_] r)
-  (plus [z w]
-    (if (= w infinity)
-      infinity
-      (complex-rect (v/sum (coords z) (coords w)))))
-  (minus [z] (polar. (:length z) (mod (+ alpha 180) 360)))
-  (times [_ w]
-    (cond (= w zero) zero
-          (= w infinity) infinity
-          (number? w) (polar. (* r w) alpha)
-          :else
-          (polar. (* r (length w))
-                  (+ alpha (rad->deg (arg w))))))
-  (recip [_] (polar. (/ r) (mod (- alpha) 360)))
-  (conjugate [_] (polar. r (mod (- alpha) 360))))
-
-(comment
-  (coords (plus w1 (minus w1)))
-  ;;=> [-1.1102230246251565e-15 6.661338147750939e-16]
-  )
-
-(defn complex-polar
-  ([arg] (complex-polar 1 arg))
-  ([length arg] (polar. length arg)))
-
-(def w1 (complex-polar (/ 360 6)))
 
 (comment
   (instance? complex i)
@@ -118,7 +87,6 @@
         z))  ;; unless w = infinity, then undefined
     (recip [_] infinity)
     (length [_] 0)
-    (arg [_] 0)
     (conjugate [z] z)
     (coords [_] [0 0])))
 
