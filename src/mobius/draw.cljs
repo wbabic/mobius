@@ -50,6 +50,21 @@
   ;;(.fill context)
   (.closePath context))
 
+(defn arc
+  "counter clockwise arc from start to end radians"
+  [context center radius start end]
+  (.beginPath context)
+  (.arc context (center 0) (center 1) radius start end true)
+  (.stroke context)
+  (.closePath context))
+
+(defn disk [context center radius]
+  (.beginPath context)
+  (.arc context (center 0) (center 1) radius 0 (* 2 Math/PI) false)
+  (.stroke context)
+  (.fill context)
+  (.closePath context))
+
 (defn style [context s]
   (doseq [[k v] s]
     (case k
@@ -100,6 +115,9 @@
          [:circle C]
          (let [{:keys [center radius]} C]
            (circle context (t-fn center) (t-fn radius)))
+         [:arc C]
+         (let [{:keys [center radius start end]} C]
+           (arc context (t-fn center) (t-fn radius) (- start) (- end)))
          [:style s]
          (style context s)))
 

@@ -57,7 +57,8 @@
         l-max (l 100000)
         len (c/length l-max)
         k (/ 6 len)]
-    (mult l-max k)))
+    ;;(mult l-max k)
+    l-max))
 
 (defn line
   "line between first two complex numbers
@@ -69,6 +70,13 @@
           (= infinity z2) [z1 (plus-infinity z3 z1)]
           :else [z1 z2])]
     [:line (c/coords w1) (c/coords w2)]))
+
+(defn arc
+  "arc between two complex numbers"
+  [z1 z2 center radius]
+  (let [start (c/arg z1)
+        end (+ (c/arg (div z2 z1)))]
+    [:arc {:center center :radius radius :start start :end end}]))
 
 (defn render-line
   "render line l consisting of three collinear points
@@ -102,15 +110,23 @@
   [g-circle color-scheme]
   (let [[z1 z2 z3] g-circle
         [p1 p2 p3] (mapv c/coords g-circle)
-        circle (circumcircle g-circle)]
-    [(l-style :s1 color-scheme)
-     circle
-     (p-style :p1 color-scheme)
-     [:point p1]
-     (p-style :p2 color-scheme)
-     [:point p2]
-     (p-style :p3 color-scheme)
-     [:point p3]]))
+        circle (circumcircle g-circle)
+        {:keys [center radius]} (second circle)
+        arcs [(l-style :s1 color-scheme)
+              (arc z1 z2 center radius)
+
+              (l-style :s2 color-scheme)
+              (arc z2 z3 center radius)
+
+              (l-style :s3 color-scheme)
+              (arc z3 z1 center radius)]
+        points [(p-style :p1 color-scheme)
+                [:point p1]
+                (p-style :p2 color-scheme)
+                [:point p2]
+                (p-style :p3 color-scheme)
+                [:point p3]]]
+    (concat arcs points)))
 
 (defn render
   "transform generalized circle to
@@ -131,7 +147,7 @@
         z3 (minus z1)]
     [z1 z2 z3]))
 
-(comment
+ (comment
   ;; real-axis
   ((render [zero one infinity])
 
@@ -206,12 +222,6 @@
      [:point [0 0]])]
 
    (render (circle-through-point [1 1]))
-   [[:style {:stroke "red"}]
-    [:circle [:circle {:center [0 0], :radius 1.4142135623730951}]]
-    [:style {:stroke "grey", :fill "cyan"}]
-    [:point [1 1]]
-    [:style {:stroke "grey", :fill "magenta"}]
-    [:point [-1 1]]
-    [:style {:stroke "grey", :fill "yellow"}]
-    [:point [-1 -1]]]
+
+
    ))
