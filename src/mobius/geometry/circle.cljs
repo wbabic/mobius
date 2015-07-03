@@ -50,9 +50,14 @@
   [z w]
   (fn [t] (c/plus (c/mult z (- 1 t)) (c/mult w t))))
 
-(defn plus-infinity [z1 z2]
-  (let [l (param-line z1 z2)]
-    (l 100000)))
+(defn plus-infinity
+  "return largest point on line within user space (r = 4)"
+  [z1 z2]
+  (let [l (param-line z1 z2)
+        l-max (l 100000)
+        len (c/length l-max)
+        k (/ 6 len)]
+    (mult l-max k)))
 
 (defn line
   "line between first two complex numbers
@@ -99,7 +104,7 @@
         [p1 p2 p3] (mapv c/coords g-circle)
         circle (circumcircle g-circle)]
     [(l-style :s1 color-scheme)
-     [:circle circle]
+     circle
      (p-style :p1 color-scheme)
      [:point p1]
      (p-style :p2 color-scheme)
@@ -120,95 +125,93 @@
   (let [z (c/complex-rect point)]
     [zero z infinity]))
 
+(defn circle-through-point [point]
+  (let [z1 (c/complex-rect point)
+        z2 (mult i z1)
+        z3 (minus z1)]
+    [z1 z2 z3]))
+
 (comment
   ;; real-axis
-  (render [zero one infinity])
+  ((render [zero one infinity])
 
-  (render [zero i infinity])
-  (render [one i (minus one)])
+   (render [zero i infinity])
+   (render [one i (minus one)])
 
-  (render (radial-line-from-point [-4 -2]))
-  ([:style {:stroke "red"}]
-   [:line [0 0] [-4 -2]]
-   [:style {:stroke "green"}]
-   [:line [-4 -2] [-400000000000 -200000000000]]
-   [:style {:stroke "blue"}]
-   [:line [399999999996 199999999998] [0 0]]
-   [:style {:stroke "grey", :fill "cyan"}]
-   [:point [0 0]] [:style {:stroke "grey", :fill "magenta"}]
-   [:point [-4 -2]])
-
-  (let [T #(t/mult t/J %)
-        l1 [zero one infinity]
-        l2 [zero i infinity]
-        c1 [one i (minus one)]
-        tv #(mapv (comp c/coords T) %)]
-    (mapv tv [l1 l2 c1]))
-  ;;=> [["infinity" [1 0] [0 0]] ["infinity" [0 -1] [0 0]] [[1 0] [0 -1] [-1 0]]]
-
-  (render [zero one infinity])
-  ([:style {:stroke "red"}]
-   [:line [0 0] [1 0]]
-   [:style {:stroke "green"}]
-   [:line [1 0] [109 0]]
-   [:style {:stroke "blue"}]
-   [:line [-108 0] [0 0]]
-   [:style {:stroke "grey", :fill "cyan"}]
-   [:point [0 0]]
-   [:style {:stroke "grey", :fill "magenta"}]
-   [:point [1 0]])
-
-  (render [infinity one zero])
-  ([:style {:stroke "red"}]
-   [:line [109 0] [1 0]]
-
-   [:style {:stroke "green"}]
-   [:line [1 0] [0 0]]
-
-   [:style {:stroke "blue"}]
-   [:line [0 0] [-108 0]]
-
-   [:style {:stroke "grey", :fill "magenta"}]
-   [:point [1 0]]
-
-   [:style {:stroke "grey", :fill "yellow"}]
-   [:point [0 0]])
-
-  (let [z (c/complex-rect [1 -1])
-        l [zero z infinity]
-        T  #(t/mult t/J %)
-        Tl (mapv T l)]
-    [(mapv c/coords l)
-     (mapv c/coords Tl)
-     (render l)
-     (render Tl)])
-  [[[0 0] [1 -1] "infinity"] ["infinity" [0.5 0.5] [0 0]]
+   (render (radial-line-from-point [-4 -2]))
    ([:style {:stroke "red"}]
-    [:line [500 500] [0.5 0.5]]
+    [:line [0 0] [-4 -2]]
     [:style {:stroke "green"}]
-    [:line [0.5 0.5] [0 0]]
+    [:line [-4 -2] [-400000000000 -200000000000]]
     [:style {:stroke "blue"}]
-    [:line [0 0] [-499.5 -499.5]]
-    [:style {:stroke "grey", :fill "magenta"}]
-    [:point [0.5 0.5]]
-    [:style {:stroke "grey", :fill "yellow"}]
-    [:point [0 0]])]
+    [:line [399999999996 199999999998] [0 0]]
+    [:style {:stroke "grey", :fill "cyan"}]
+    [:point [0 0]] [:style {:stroke "grey", :fill "magenta"}]
+    [:point [-4 -2]])
 
-  (let [z (c/complex-rect [4 -4])
-        l [zero z infinity]
-        T  #(t/mult t/J %)
-        Tl (mapv T l)]
-    [(mapv c/coords Tl)
-     (render Tl)])
-  [["infinity" [0.125 0.125] [0 0]]
+   (let [T #(t/mult t/J %)
+         l1 [zero one infinity]
+         l2 [zero i infinity]
+         c1 [one i (minus one)]
+         tv #(mapv (comp c/coords T) %)]
+     (mapv tv [l1 l2 c1]))
+   ;;=> [["infinity" [1 0] [0 0]] ["infinity" [0 -1] [0 0]] [[1 0] [0 -1] [-1 0]]]
+
+   (render [zero one infinity])
    ([:style {:stroke "red"}]
-    [:line [12500 12500] [0.125 0.125]]
+    [:line [0 0] [1 0]]
     [:style {:stroke "green"}]
-    [:line [0.125 0.125] [0 0]]
+    [:line [1 0] [109 0]]
     [:style {:stroke "blue"}]
-    [:line [0 0] [-12499.875 -12499.875]]
+    [:line [-108 0] [0 0]]
+    [:style {:stroke "grey", :fill "cyan"}]
+    [:point [0 0]]
     [:style {:stroke "grey", :fill "magenta"}]
-    [:point [0.125 0.125]]
+    [:point [1 0]])
+
+   (render [infinity one zero])
+   ([:style {:stroke "red"}]
+    [:line [109 0] [1 0]]
+
+    [:style {:stroke "green"}]
+    [:line [1 0] [0 0]]
+
+    [:style {:stroke "blue"}]
+    [:line [0 0] [-108 0]]
+
+    [:style {:stroke "grey", :fill "magenta"}]
+    [:point [1 0]]
+
     [:style {:stroke "grey", :fill "yellow"}]
-    [:point [0 0]])]
-  )
+    [:point [0 0]])
+
+   (let [z (c/complex-rect [1 -1])
+         l [zero z infinity]
+         T  #(t/mult t/J %)
+         Tl (mapv T l)]
+     [(mapv c/coords l)
+      (mapv c/coords Tl)
+      (render l)
+      (render Tl)])
+   [[[0 0] [1 -1] "infinity"] ["infinity" [0.5 0.5] [0 0]]
+    ([:style {:stroke "red"}]
+     [:line [500 500] [0.5 0.5]]
+     [:style {:stroke "green"}]
+     [:line [0.5 0.5] [0 0]]
+     [:style {:stroke "blue"}]
+     [:line [0 0] [-499.5 -499.5]]
+     [:style {:stroke "grey", :fill "magenta"}]
+     [:point [0.5 0.5]]
+     [:style {:stroke "grey", :fill "yellow"}]
+     [:point [0 0]])]
+
+   (render (circle-through-point [1 1]))
+   [[:style {:stroke "red"}]
+    [:circle [:circle {:center [0 0], :radius 1.4142135623730951}]]
+    [:style {:stroke "grey", :fill "cyan"}]
+    [:point [1 1]]
+    [:style {:stroke "grey", :fill "magenta"}]
+    [:point [-1 1]]
+    [:style {:stroke "grey", :fill "yellow"}]
+    [:point [-1 -1]]]
+   ))

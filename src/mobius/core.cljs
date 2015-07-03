@@ -167,8 +167,7 @@
                (om/set-state! owner :mouse-point mouse-point))
              [:click mouse-point]
              (do
-               (om/set-state! owner :mouse-point mouse-point)
-               (prn event)))
+               (om/set-state! owner :mouse-point mouse-point)))
       (recur))))
 
 (defn toggle [in]
@@ -221,7 +220,7 @@
           (draw/render-local app-state state
                              draw-chan-1
                              draw-chan-2
-                             (image-fn app-state)))
+                             #(t/mult (transform-fn @app-state) %)))
         (dom/div nil
                  (dom/div #js {:className "select-transform"}
                           (dom/h3 nil "Select Transform")
@@ -260,4 +259,10 @@
         data [[250 250] [313 250] [250 188] [-375 -375] [875 875]]]
     (sequence t-fn data))
   ;;=> ([0 0] [1.008 0] [0 0.992] [-10 10] [10 -10])
+
+  (let [m (draw/user->screen canvas-1-config)
+        tf (map m)
+        data [[12500 12500] [0.125 0.125] [0 0] [-12499.875 -12499.875]]]
+    (sequence tf data))
+  ;;=> ([781500 -781000] [258 242] [250 250] [-780992 781492])
   )

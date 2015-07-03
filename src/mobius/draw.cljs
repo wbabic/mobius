@@ -340,17 +340,16 @@
   (let [rect? (get-in state [:mouse-mode :rectangular])
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
-        line-data (c/render (c/radial-line-from-point point))
-        style-1 [:style {:stroke "yellow" :lineWidth 1}]
-        style-2 [:style {:stroke "cyan" :lineWidth 1}]]
-    (let [data (cond-> []
-                 polar? (into line-data)
-                 rect?  (into (interleave [style-1 style-2]
-                                          (geom/rectangular-point point))))]
-      (go
-        (doseq [d data]
-          (>! draw-chan-1 d)
-          (>! draw-chan-2 (trans d)))))))
+        line (c/radial-line-from-point point)
+        circle (c/circle-through-point point)
+        render-list [line circle]
+        f #(mapv trans %)]
+    (go
+      (doseq [r render-list]
+        (doseq [d (c/render r)]
+          (>! draw-chan-1 d))
+        (doseq [d (c/render (f r))]
+          (>! draw-chan-2 d))))))
 
 (defn render-local
   [app-state local-state ch-1 ch-2 trans]
@@ -361,4 +360,5 @@
       (render-data app-state ch-1 ch-2 trans ret-chan)
       ;; wait for render-data to complete
       (<! ret-chan)
+      ;; now draw local-state on top
       (render-mouse-point local-state ch-1 ch-2 trans))))
