@@ -53,6 +53,7 @@
 ;; J: z -> 1/z
 (def J
   (mobius-trans. zero i i zero))
+
 (defn translation [b]
   (mobius-trans. one b zero one))
 

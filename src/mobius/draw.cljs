@@ -52,9 +52,9 @@
 
 (defn arc
   "counter clockwise arc from start to end radians"
-  [context center radius start end]
+  [context center radius start end clockwise]
   (.beginPath context)
-  (.arc context (center 0) (center 1) radius start end true)
+  (.arc context (center 0) (center 1) radius start end (not clockwise))
   (.stroke context)
   (.closePath context))
 
@@ -116,8 +116,8 @@
          (let [{:keys [center radius]} C]
            (circle context (t-fn center) (t-fn radius)))
          [:arc C]
-         (let [{:keys [center radius start end]} C]
-           (arc context (t-fn center) (t-fn radius) (- start) (- end)))
+         (let [{:keys [center radius start end clockwise]} C]
+           (arc context (t-fn center) (t-fn radius) (- start) (- end) clockwise))
          [:style s]
          (style context s)))
 
@@ -360,13 +360,13 @@
         point (:mouse-point state)
         line (c/radial-line-from-point point)
         circle (c/circle-through-point point)
-        render-list [line circle]
+        render-list [[line c/cs-1] [circle c/cs-2]]
         f #(mapv trans %)]
     (go
-      (doseq [r render-list]
-        (doseq [d (c/render r)]
+      (doseq [[r cs] render-list]
+        (doseq [d (c/render r cs)]
           (>! draw-chan-1 d))
-        (doseq [d (c/render (f r))]
+        (doseq [d (c/render (f r) cs)]
           (>! draw-chan-2 d))))))
 
 (defn render-local

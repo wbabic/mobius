@@ -29,6 +29,22 @@
    :s2 "green"
    :s3 "blue"})
 
+(def cs-1
+  {:p1 "cyan"
+   :p2 "magenta"
+   :p3 "yellow"
+   :s1 "blue"
+   :s2 "green"
+   :s3 "red"})
+
+(def cs-2
+  {:p1 "red"
+   :p2 "purple"
+   :p3 "green"
+   :s1 "orange"
+   :s2 "purple"
+   :s3 "black"})
+
 (defn collinear? [l]
   (let [[z1 z2 z3] l]
     (if (some #(= infinity %) l)
@@ -79,10 +95,10 @@
         lines [(l-style :s1 color-scheme)
                (line z1 z2 z3)
 
-               (l-style :s2 color-scheme)
+               (l-style :s1 color-scheme)
                (line z2 z3 z1)
 
-               (l-style :s3 color-scheme)
+               (l-style :s1 color-scheme)
                (line z3 z1 z2)]
         points (cond-> []
                  (not (= infinity z1))
@@ -100,37 +116,52 @@
 
 (defn arc
   "arc between two complex numbers"
-  [center radius start end]
-  [:arc {:center center :radius radius :start start :end end}])
+  [center radius start end clockwise]
+  [:arc {:center center :radius radius
+         :start start :end end
+         :clockwise clockwise}])
 
 (defn args
   "arguments of three complex numbers"
   [z1 z2 z3]
   [(c/arg z1) (c/arg z2) (c/arg z3)])
 
+(defn arg-diffs [[z1 z2 z3]]
+  [(c/arg (div z2 z1))
+   (c/arg (div z3 z2))
+   (c/arg (div z1 z3))])
+
+(defn clockwise [c]
+  (let [diffs (arg-diffs c)]
+    (if (some #(> % (/ c/tau 2)) diffs)
+      true false)))
+
 (defn render-circle
   "assumes g-circle is not a line"
   [g-circle color-scheme]
   (let [[z1 z2 z3] g-circle
         [a1 a2 a3] (args z1 z2 z3)
+        clockwise? (clockwise g-circle)
         [p1 p2 p3] (mapv c/coords g-circle)
         circle (circumcircle g-circle)
         {:keys [center radius]} (second circle)
         arcs [(l-style :s1 color-scheme)
-              (arc center radius a1 a2)
+              (arc center radius a1 a2 clockwise?)
 
               (l-style :s2 color-scheme)
-              (arc center radius a2 a3)
+              (arc center radius a2 a3 clockwise?)
 
               (l-style :s3 color-scheme)
-              (arc center radius a3 a1)]
+              (arc center radius a3 a1 clockwise?)]
+        circ [(l-style :s1 color-scheme)
+              circle]
         points [(p-style :p1 color-scheme)
                 [:point p1]
                 (p-style :p2 color-scheme)
                 [:point p2]
                 (p-style :p3 color-scheme)
                 [:point p3]]]
-    (concat arcs points)))
+    (concat circ points)))
 
 (defn render
   "transform generalized circle to
@@ -146,9 +177,10 @@
     [zero z infinity]))
 
 (defn circle-through-point [point]
-  (let [z1 (c/complex-rect point)
-        z2 (mult i z1)
-        z3 (minus z1)]
+  (let [z (c/complex-rect point)
+        z1 (mult i z)
+        z2 (minus z)
+        z3 (mult (minus i) z)]
     [z1 z2 z3]))
 
  (comment
@@ -189,8 +221,37 @@
          T #(t/mult t/J %)
          c2 (mapv T c1)
          f #(mapv c/coords %)
-         g #(mapv (comp c/rad->deg c/arg) %)]
-     [(g c1) (g c2)])
-   ;;=> [[45 134.99999999999994 225] [315 225 134.99999999999994]]
+         g #(mapv (comp c/rad->deg c/arg) %)
+         d [c1 c2]]
+     [(mapv f d)
+      (mapv g d)])
+   [[[[1 1] [-1 1] [-1 -1]]
+     [[0.5 -0.5] [-0.5 -0.5] [-0.5 0.5]]]
+    [[45 134.99999999999994 225] [315 225 134.99999999999994]]]
 
+   (mapv c/coords (circle-through-point [1 -1]))
+   ;;=> [[1 -1] [1 1] [-1 1]]
+   (let [c1 (circle-through-point [1 -1])
+         T #(t/mult t/J %)
+         c2 (mapv T c1)
+         f #(mapv c/coords %)
+         g #(mapv (comp c/rad->deg c/arg) %)
+         d [c1 c2]]
+     [(mapv f d)
+      (mapv g d)])
+   [[[[1 -1] [1 1] [-1 1]]
+     [[0.5 0.5] [0.5 -0.5] [-0.5 -0.5]]]
+    [[315 45 134.99999999999994]
+     [45 315 225]]]
+
+   (let [c1 (circle-through-point [1 -1])
+         T #(t/mult t/J %)
+         c2 (mapv T c1)
+         f #(mapv c/coords %)
+         g #(mapv (comp c/rad->deg c/arg) %)
+         h #(arg-diffs %)
+         d [c1 c2]]
+     [(mapv f d)
+      (mapv g d)
+      (mapv clockwise d)])
    )
