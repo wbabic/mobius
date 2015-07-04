@@ -358,16 +358,27 @@
   (let [rect? (get-in state [:mouse-mode :rectangular])
         polar? (get-in state [:mouse-mode :polar])
         point (:mouse-point state)
-        line (c/radial-line-from-point point)
-        circle (c/circle-through-point point)
-        render-list [[line c/cs-1] [circle c/cs-2]]
         f #(mapv trans %)]
-    (go
-      (doseq [[r cs] render-list]
-        (doseq [d (c/render r cs)]
-          (>! draw-chan-1 d))
-        (doseq [d (c/render (f r) cs)]
-          (>! draw-chan-2 d))))))
+    (when polar?
+      (let [line (c/radial-line-through-point point)
+            circle (c/circle-through-point point)
+            render-list [[line c/cs-1] [circle c/cs-2]]]
+        (go
+          (doseq [[r cs] render-list]
+            (doseq [d (c/render r cs)]
+              (>! draw-chan-1 d))
+            (doseq [d (c/render (f r) cs)]
+              (>! draw-chan-2 d))))))
+    (when rect?
+      (let [h-line (c/horizontal-line-through-point point)
+            v-line (c/vertical-line-through-point point)
+            render-list [[h-line c/cs-1] [v-line c/cs-2]]]
+        (go
+          (doseq [[r cs] render-list]
+            (doseq [d (c/render r cs)]
+              (>! draw-chan-1 d))
+            (doseq [d (c/render (f r) cs)]
+              (>! draw-chan-2 d))))))))
 
 (defn render-local
   [app-state local-state ch-1 ch-2 trans]

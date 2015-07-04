@@ -172,7 +172,7 @@
      (render-line circle-or-line color-scheme)
      (render-circle circle-or-line color-scheme))))
 
-(defn radial-line-from-point [point]
+(defn radial-line-through-point [point]
   (let [z (c/complex-rect point)]
     [zero z infinity]))
 
@@ -183,34 +183,36 @@
         z3 (mult (minus i) z)]
     [z1 z2 z3]))
 
- (comment
-  ;; real-axis
-   (render [zero one infinity])
+(defn horizontal-line-through-point
+  [point]
+  (let [[x y] point
+        z (c/complex-rect point)
+        z0 (c/complex-rect [0 y])]
+    [z0 z infinity]))
 
+(defn vertical-line-through-point
+  [point]
+  (let [[x y] point
+        z (c/complex-rect point)
+        z0 (c/complex-rect [x 0])]
+    [z0 z infinity]))
+
+ (comment
+   (render [zero one infinity])
    (render [zero i infinity])
    (render [one i (minus one)])
+   (render (radial-line-through-point [-4 -2]))
 
-   (render (radial-line-from-point [-4 -2]))
-
+   ;; inversion of real-axis, imaginary-axis, and unit-circle
    (let [T #(t/mult t/J %)
          l1 [zero one infinity]
          l2 [zero i infinity]
          c1 [one i (minus one)]
          tv #(mapv (comp c/coords T) %)]
      (mapv tv [l1 l2 c1]))
-   ;;=> [["infinity" [1 0] [0 0]] ["infinity" [0 -1] [0 0]] [[1 0] [0 -1] [-1 0]]]
-
-   (render [zero one infinity])
-   (render [infinity one zero])
-   (let [z (c/complex-rect [1 -1])
-         l [zero z infinity]
-         T  #(t/mult t/J %)
-         Tl (mapv T l)]
-     [(mapv c/coords l)
-      (mapv c/coords Tl)
-      (render l)
-      (render Tl)])
-
+   [["infinity" [1 0] [0 0]]
+    ["infinity" [0 -1] [0 0]]
+    [[1 0] [0 -1] [-1 0]]]
 
    (mapv c/coords (circle-through-point [1 1]))
    ;;=> [[1 1] [-1 1] [-1 -1]]

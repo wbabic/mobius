@@ -67,9 +67,15 @@
   (if (and (zero? x) (zero? y))
     zero
     (complex. x y)))
+
 (def c complex-rect)
+
 (def one (complex-rect [1 0]))
 (def i (complex-rect [0 1]))
+
+(defn complex-polar [degrees]
+  (let [rads (deg->rad degrees)]
+    (complex-rect (polar->rect rads))))
 
 (comment
   (instance? complex i)
