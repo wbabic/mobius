@@ -14,7 +14,7 @@
                  [org.omcljs/om "0.8.8"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.3"
+            [lein-figwheel "0.3.7"
              :exclusions [org.clojure/clojure
                           org.codehaus.plexus/plexus-utils]]]
 

@@ -136,24 +136,32 @@
     (if (some #(> % (/ c/tau 2)) diffs)
       true false)))
 
+(comment
+  ;; for render-circle arc segments
+  ;; need to fix
+  clockwise? (clockwise g-circle)
+
+  arcs [(l-style :s1 color-scheme)
+        (arc center radius a1 a2 clockwise?)
+
+        (l-style :s2 color-scheme)
+        (arc center radius a2 a3 clockwise?)
+
+        (l-style :s3 color-scheme)
+        (arc center radius a3 a1 clockwise?)]
+  )
+
 (defn render-circle
   "assumes g-circle is not a line"
   [g-circle color-scheme]
   (assert (not (collinear? g-circle)))
   (let [[z1 z2 z3] g-circle
         [a1 a2 a3] (args z1 z2 z3)
-        clockwise? (clockwise g-circle)
+
         [p1 p2 p3] (mapv c/coords g-circle)
         circle (circumcircle g-circle)
         {:keys [center radius]} (second circle)
-        arcs [(l-style :s1 color-scheme)
-              (arc center radius a1 a2 clockwise?)
 
-              (l-style :s2 color-scheme)
-              (arc center radius a2 a3 clockwise?)
-
-              (l-style :s3 color-scheme)
-              (arc center radius a3 a1 clockwise?)]
         circ [(l-style :s1 color-scheme)
               circle]
         points [(p-style :p1 color-scheme)
@@ -188,73 +196,153 @@
   [point]
   (let [[x y] point
         z (c/complex-rect point)
-        z0 (c/complex-rect [0 y])]
-    [z0 z infinity]))
+        z1 (sub z one)
+        z2 (add z one)]
+    [z1 z2 infinity]))
 
 (defn vertical-line-through-point
   [point]
   (let [[x y] point
         z (c/complex-rect point)
-        z0 (c/complex-rect [x 0])]
-    [z0 z infinity]))
+        z1 (sub z i)
+        z2 (add z i)]
+    [z1 z2 infinity]))
 
- (comment
-   (render [zero one infinity])
-   (render [zero i infinity])
-   (render [one i (minus one)])
-   (render (radial-line-through-point [-4 -2]))
+(comment
+  (render [zero one infinity])
+  (render [zero i infinity])
+  (render [one i (minus one)])
+  (render (radial-line-through-point [-4 -2]))
 
-   ;; inversion of real-axis, imaginary-axis, and unit-circle
-   (let [T #(t/mult t/J %)
-         l1 [zero one infinity]
-         l2 [zero i infinity]
-         c1 [one i (minus one)]
-         tv #(mapv (comp c/coords T) %)]
-     (mapv tv [l1 l2 c1]))
-   [["infinity" [1 0] [0 0]]
-    ["infinity" [0 -1] [0 0]]
-    [[1 0] [0 -1] [-1 0]]]
+  ;; inversion of real-axis, imaginary-axis, and unit-circle
+  (let [T #(t/mult t/J %)
+        l1 [zero one infinity]
+        l2 [zero i infinity]
+        c1 [one i (minus one)]
+        tv #(mapv (comp c/coords T) %)]
+    (mapv tv [l1 l2 c1]))
+  [["infinity" [1 0] [0 0]]
+   ["infinity" [0 -1] [0 0]]
+   [[1 0] [0 -1] [-1 0]]]
 
-   (mapv c/coords (circle-through-point [1 1]))
-   ;;=> [[1 1] [-1 1] [-1 -1]]
+  (mapv c/coords (circle-through-point [1 1]))
+  ;;=> [[1 1] [-1 1] [-1 -1]]
 
-   (render (circle-through-point [1 1]))
-   (mapv (comp c/rad->deg c/arg) (circle-through-point [1 1]))
-   (let [c1 (circle-through-point [1 1])
-         T #(t/mult t/J %)
-         c2 (mapv T c1)
-         f #(mapv c/coords %)
-         g #(mapv (comp c/rad->deg c/arg) %)
-         d [c1 c2]]
-     [(mapv f d)
-      (mapv g d)])
-   [[[[1 1] [-1 1] [-1 -1]]
-     [[0.5 -0.5] [-0.5 -0.5] [-0.5 0.5]]]
-    [[45 134.99999999999994 225] [315 225 134.99999999999994]]]
+  (render (circle-through-point [1 1]))
+  (mapv (comp c/rad->deg c/arg) (circle-through-point [1 1]))
+  (let [c1 (circle-through-point [1 1])
+        T #(t/mult t/J %)
+        c2 (mapv T c1)
+        f #(mapv c/coords %)
+        g #(mapv (comp c/rad->deg c/arg) %)
+        d [c1 c2]]
+    [(mapv f d)
+     (mapv g d)])
+  [[[[1 1] [-1 1] [-1 -1]]
+    [[0.5 -0.5] [-0.5 -0.5] [-0.5 0.5]]]
+   [[45 134.99999999999994 225] [315 225 134.99999999999994]]]
 
-   (mapv c/coords (circle-through-point [1 -1]))
-   ;;=> [[1 -1] [1 1] [-1 1]]
-   (let [c1 (circle-through-point [1 -1])
-         T #(t/mult t/J %)
-         c2 (mapv T c1)
-         f #(mapv c/coords %)
-         g #(mapv (comp c/rad->deg c/arg) %)
-         d [c1 c2]]
-     [(mapv f d)
-      (mapv g d)])
-   [[[[1 -1] [1 1] [-1 1]]
-     [[0.5 0.5] [0.5 -0.5] [-0.5 -0.5]]]
-    [[315 45 134.99999999999994]
-     [45 315 225]]]
+  (mapv c/coords (circle-through-point [1 -1]))
+  ;;=> [[1 -1] [1 1] [-1 1]]
+  (let [c1 (circle-through-point [1 -1])
+        T #(t/mult t/J %)
+        c2 (mapv T c1)
+        f #(mapv c/coords %)
+        g #(mapv (comp c/rad->deg c/arg) %)
+        d [c1 c2]]
+    [(mapv f d)
+     (mapv g d)])
+  [[[[1 -1] [1 1] [-1 1]]
+    [[0.5 0.5] [0.5 -0.5] [-0.5 -0.5]]]
+   [[315 45 134.99999999999994]
+    [45 315 225]]]
 
-   (let [c1 (circle-through-point [1 -1])
-         T #(t/mult t/J %)
-         c2 (mapv T c1)
-         f #(mapv c/coords %)
-         g #(mapv (comp c/rad->deg c/arg) %)
-         h #(arg-diffs %)
-         d [c1 c2]]
-     [(mapv f d)
-      (mapv g d)
-      (mapv clockwise d)])
-   )
+  (let [c1 (circle-through-point [1 -1])
+        T #(t/mult t/J %)
+        c2 (mapv T c1)
+        f #(mapv c/coords %)
+        g #(mapv (comp c/rad->deg c/arg) %)
+        h #(arg-diffs %)
+        d [c1 c2]]
+    [(mapv f d)
+     (mapv g d)
+     (mapv clockwise d)])
+
+  (let [point [1 1]
+        T #(t/mult t/J %)
+        h-line (horizontal-line-through-point point)
+        v-line (vertical-line-through-point point)
+        rl [h-line v-line]
+        c #(mapv c/coords %)
+        f #(mapv T %)
+        trl (mapv f rl)]
+    [(mapv c rl)
+     (mapv c trl)
+     (mapv collinear? trl)])
+  [[[[0 1] [1 1] "infinity"]
+    [[1 0] [1 1] "infinity"]]
+   [[[0 -1] [0.5 -0.5] [0 0]]
+    [[1 0] [0.5 -0.5] [0 0]]]
+   [false false]]
+
+  (let [point [1 1]
+        T #(t/mult t/J %)
+        h-line (horizontal-line-through-point point)
+        v-line (vertical-line-through-point point)
+        rl [h-line v-line]
+        c #(mapv c/coords %)
+        f #(mapv T %)
+        trl (mapv f rl)]
+    [(mapv render trl)])
+
+  (let [point [0 0]
+        T #(t/mult t/J %)
+        h-line (horizontal-line-through-point point)
+        v-line (vertical-line-through-point point)
+        rl [h-line v-line]
+        c #(mapv c/coords %)
+        f #(mapv T %)
+        trl (mapv f rl)]
+    [(mapv c rl)
+     (mapv c trl)
+     (mapv collinear? trl)])
+  [[[[-1 0] [1 0] "infinity"]
+    [[0 -1] [0 1] "infinity"]]
+   [[[-1 0] [1 0] [0 0]]
+    [[0 1] [0 -1] [0 0]]]
+   [true true]]
+
+  (let [point [0 0]
+        T #(t/mult t/J %)
+        h-line (horizontal-line-through-point point)
+        v-line (vertical-line-through-point point)
+        rl [h-line v-line]
+        c #(mapv c/coords %)
+        f #(mapv T %)
+        trl (mapv f rl)]
+    [(mapv render trl)])
+  [[([:style {:stroke "red"}]
+     [:line [-1 0] [1 0]]
+     [:style {:stroke "red"}]
+     [:line [1 0] [0 0]]
+     [:style {:stroke "red"}]
+     [:line [0 0] [-1 0]]
+     [:style {:stroke "grey", :fill "cyan"}]
+     [:point [-1 0]]
+     [:style {:stroke "grey", :fill "magenta"}]
+     [:point [1 0]]
+     [:style {:stroke "grey", :fill "yellow"}]
+     [:point [0 0]])
+    ([:style {:stroke "red"}]
+     [:line [0 1] [0 -1]]
+     [:style {:stroke "red"}]
+     [:line [0 -1] [0 0]]
+     [:style {:stroke "red"}]
+     [:line [0 0] [0 1]]
+     [:style {:stroke "grey", :fill "cyan"}]
+     [:point [0 1]]
+     [:style {:stroke "grey", :fill "magenta"}]
+     [:point [0 -1]]
+     [:style {:stroke "grey", :fill "yellow"}]
+     [:point [0 0]])]]
+  )

@@ -108,7 +108,8 @@
         z))
     (minus [z] z)
     (conjugate [z] z)
-    (arg [_] (false "can not call arg on infinity"))
+    (arg [_] (assert false "infinity has no arg"))
+    (length [_] (assert false "infinity has no length"))
     (times [this w]
       (if (= zero w)
         undefined
