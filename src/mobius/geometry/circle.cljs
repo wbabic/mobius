@@ -139,6 +139,7 @@
 (defn render-circle
   "assumes g-circle is not a line"
   [g-circle color-scheme]
+  (assert (not (collinear? g-circle)))
   (let [[z1 z2 z3] g-circle
         [a1 a2 a3] (args z1 z2 z3)
         clockwise? (clockwise g-circle)

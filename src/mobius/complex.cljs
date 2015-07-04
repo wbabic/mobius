@@ -73,9 +73,11 @@
 (def one (complex-rect [1 0]))
 (def i (complex-rect [0 1]))
 
-(defn complex-polar [degrees]
-  (let [rads (deg->rad degrees)]
-    (complex-rect (polar->rect rads))))
+(defn complex-polar
+  ([degrees] (complex-polar 1 degrees))
+  ([radius degrees]
+   (let [radians (deg->rad degrees)]
+     (complex-rect (polar->rect radius radians)))))
 
 (comment
   (instance? complex i)
@@ -93,6 +95,7 @@
         z))  ;; unless w = infinity, then undefined
     (recip [_] infinity)
     (length [_] 0)
+    (arg [_] 0)
     (conjugate [z] z)
     (coords [_] [0 0])))
 
@@ -105,6 +108,7 @@
         z))
     (minus [z] z)
     (conjugate [z] z)
+    (arg [_] (false "can not call arg on infinity"))
     (times [this w]
       (if (= zero w)
         undefined
