@@ -92,6 +92,7 @@
   any of which may be infinity"
   [l color-scheme]
   (let [[z1 z2 z3] l
+        ;; if one of zi is infinity
         lines [(l-style :s1 color-scheme)
                (line z1 z2 z3)
 
@@ -100,6 +101,8 @@
 
                (l-style :s1 color-scheme)
                (line z3 z1 z2)]
+        ;; if none of z1 is infinity
+        ;; then extend ...
         points (cond-> []
                  (not (= infinity z1))
                  (into [(p-style :p1 color-scheme)
@@ -267,6 +270,25 @@
     [(mapv f d)
      (mapv g d)
      (mapv clockwise d)])
+
+  (let [point [0 0]
+        c (circle-through-point point)
+        l (radial-line-through-point point)
+        T #(t/mult t/J %)
+        tc (mapv T c)
+        tl (mapv T l)
+        rl [c l]
+        c #(mapv c/coords %)
+        f #(mapv T %)
+        trl (mapv f rl)]
+    [(mapv c rl)
+     (mapv c trl)
+     ;;(mapv render trl)
+     ])
+  [[[[0 0] [0 0] [0 0]]
+    [[0 0] [0 0] "infinity"]]
+   [["infinity" "infinity" "infinity"]
+    ["infinity" "infinity" [0 0]]]]
 
   (let [point [1 1]
         T #(t/mult t/J %)
