@@ -167,6 +167,7 @@
                (om/set-state! owner :mouse-point mouse-point))
              [:click mouse-point]
              (do
+               (prn mouse-point)
                (om/set-state! owner :mouse-point mouse-point)))
       (recur))))
 
