@@ -368,8 +368,9 @@
              [[line c/cs-1] [circle c/cs-2]]))
           rect? (into
                  (let [h-line (c/horizontal-line-through-point point)
-                       v-line (c/vertical-line-through-point point)]
-                   [[h-line c/cs-1] [v-line c/cs-2]])))]
+                       v-line (c/vertical-line-through-point point)
+                       c1 (c/circle-about-point point)]
+                   [[h-line c/cs-3] [v-line c/cs-4] [c1 c/cs-5]])))]
     (go
       (doseq [[r cs] render-list]
         (doseq [d (c/render r cs)]

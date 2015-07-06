@@ -45,6 +45,24 @@
    :s2 "purple"
    :s3 "black"})
 
+(def cs-3
+  {:p1 "cyan"
+   :p2 "magenta"
+   :p3 "yellow"
+   :s1 "green"})
+
+(def cs-4
+  {:p1 "red"
+   :p2 "blue"
+   :p3 "green"
+   :s1 "purple"})
+
+(def cs-5
+  {:p1 "cyan"
+   :p2 "yellow"
+   :p3 "magenta"
+   :s1 "orange"})
+
 (defn collinear? [l]
   (let [[z1 z2 z3] l]
     (if (some #(= infinity %) l)
@@ -92,15 +110,18 @@
   any of which may be infinity"
   [l color-scheme]
   (let [[z1 z2 z3] l
+        infinity? (some #(= infinity %) l)
         ;; if one of zi is infinity
-        lines [(l-style :s1 color-scheme)
-               (line z1 z2 z3)
-
-               (l-style :s1 color-scheme)
-               (line z2 z3 z1)
-
-               (l-style :s1 color-scheme)
-               (line z3 z1 z2)]
+        lines
+        (if infinity?
+          [(l-style :s1 color-scheme)
+           (line z1 z2 z3)
+           (line z2 z3 z1)
+           (line z3 z1 z2)]
+          [(l-style :s1 color-scheme)
+           (line z1 z2 infinity)
+           (line infinity z1 z2)
+           (line z2 infinity z1)])
         ;; if none of z1 is infinity
         ;; then extend ...
         points (cond-> []
@@ -195,21 +216,26 @@
         z3 (mult (minus i) z)]
     [z1 z2 z3]))
 
+(defn circle-about-point [point]
+  (let [z (c/complex-rect point)
+        z1 (add z one)
+        z2 (sub z one)
+        z3 (sub z i)]
+    [z1 z2 z3]))
+
 (defn horizontal-line-through-point
   [point]
   (let [[x y] point
         z (c/complex-rect point)
-        z1 (sub z one)
-        z2 (add z one)]
-    [z1 z2 infinity]))
+        z1 (add z one)]
+    [z z1 infinity]))
 
 (defn vertical-line-through-point
   [point]
   (let [[x y] point
         z (c/complex-rect point)
-        z1 (sub z i)
-        z2 (add z i)]
-    [z1 z2 infinity]))
+        z1 (add z i)]
+    [z z1 infinity]))
 
 (comment
   (render [zero one infinity])
