@@ -11,7 +11,9 @@
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
                                org.clojure/tools.analyzer.jvm]]
-                 [org.omcljs/om "0.8.8"]]
+                 [org.omcljs/om "0.8.8"]
+                 [org.clojure/test.check "0.7.0"]
+                 [prismatic/schema "0.4.3"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.7"

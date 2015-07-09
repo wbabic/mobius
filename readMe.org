@@ -315,6 +315,57 @@
 *** add test.check
     generative tests
     test properties
+
+    0.7.0
+    https://github.com/clojure/test.check
+
+*** add schema contracts
+    prismatic schema
+    0.4.3
+
+    (require '[schema.core :as s :include-macros true])
+    (doc schema.core)
+
+    namespace documentation
+
+    blog:
+    http://blog.getprismatic.com/schema-for-clojurescript-data-shape-declaration-and-validation/
+    docs:
+    http://prismatic.github.io/schema/
+
+    github:
+    https://github.com/Prismatic/schema
+
+
+    #+BEGIN_SRC clojure
+      (def Point [s/Num])
+      (def Circle "a schema for circles" {:center Point :radius s/Num})
+
+      (s/check Circle {:center [0 0] :radius 1})
+      (s/validate Circle {:center [0 0] :radius 1})
+
+      (def circle [(s/one s/Keyword "tag") (s/one Circle "data")])
+      (s/check circle [:circle {:center [0 0] :radius 1}])
+    #+END_SRC
+
+    problem: how to match [:circle Circle]
+    schema feels awkward for describing tagged data
+
+    how to describe [:triangle p1 p2 p3]
+
+    alternatively, how about making more use of complex numbers
+    and their ability to be transformed
+
+    for instance
+    a point is a single complex number
+    a line, two complex numbers
+    a triangle made up of three complex numbers,
+    if not collinear, has a circumcircle - a circumcenter and a radius
+    a transform can be applied to a point a line or a triangle
+    and consists of complex addition and multiplication
+    along with subtraction and division
+    with refelction and inversion using the complex conjugate
+
 *** add complex sqrt
     with tests
 *** re factor draw
@@ -398,3 +449,90 @@
 *** geometry and complex numbers
     including infinity
     circle through infinity is a line
+*** define the terms
+    complex number
+    addition, multiplication, one, zero
+    subtraction, multiplication
+    length angle
+    point line triangle circle
+    basic operations
+    translation, dilation
+    reflection - in a line or a circle
+
+    transforms using + - * / bar
+    circle preserving transformations
+    orientation, preserving and reversing
+
+*** describe the data
+    tell a story
+
+    two paths
+    one using reords and extend-type
+    another vectors and core.match
+
+    so what is he relevant data here?
+    primitive types: point line circle triangle style
+    to be combined in a sequence to be rendered to the canvas
+    or, eventually, to svg
+
+    to be able to animate illustrations,
+    illuminate ideas
+
+    geoemtric types with style
+    number types with algebraic operations
+    addition and multiplication
+    complex number
+
+    transformation types
+    that can be compoesed, conjugated
+    have inverses
+    and preserve generalized circles
+
+    generalized circles
+    a circle or a line
+    can be transformed
+    and, with some style, rendered
+
+    families of circles, pencils
+    and orthogonal compliments
+    images of pencils
+
+    basic transformations
+    applied to
+    unit circle
+    real axis
+
+    translation and dilation
+    addition and multiplication
+
+    geomtric data assiciated with a transform
+    to illustrate that transform
+
+    ability to create data and save or
+    pass it to the server
+    store it in a data base
+    comment on it and share it
+    or save it locally to the file system
+    evenually synching with db
+*** play of game
+    basic objects ad operations
+    transforamtion geometry
+    using complex number
+    making more complex things form simple ones
+
+    classifying all modius transformations
+    generate pencils of circles, generalized cirles
+    along with orthogonal compliments
+    just using an axis and a circle with
+    translation and dilation,
+    which in turn uses addition and multiplication
+    of complex numbers and their inverses
+
+    define a set of terms
+    which are used throughout,
+    illustrated by example
+    implemented in code
+    as basic data structures
+
+    read the story with a b-repl
+    connect algebra and geometry
