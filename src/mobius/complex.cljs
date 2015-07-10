@@ -25,11 +25,6 @@
 (defn deg->rad [deg]
   (* deg (/ tau 360)))
 
-(defn polar->rect
-  ([angle] (polar->rect 1 angle))
-  ([length angle] [(* length (Math/cos angle))
-                   (* length (Math/sin angle))]))
-
 (declare complex-rect)
 (declare infinity)
 (declare zero)
@@ -73,6 +68,11 @@
 (def one (complex-rect [1 0]))
 (def i (complex-rect [0 1]))
 
+(defn polar->rect
+  ([angle] (polar->rect 1 angle))
+  ([length angle] [(* length (Math/cos angle))
+                   (* length (Math/sin angle))]))
+
 (defn complex-polar
   ([degrees] (complex-polar 1 degrees))
   ([radius degrees]
@@ -83,6 +83,16 @@
   (instance? complex i)
   (satisfies? Complex i)
   (coords i)
+  (instance? complex zero)
+  ;;=> false
+  (satisfies? Complex zero)
+  ;;=> true
+
+  (c/->complex 1 0)
+  (c/map->complex {:x 1 :y 2})
+  (instance? complex (map->complex {:x 1 :y 2 :z 3}))
+  (satisfies? Complex (map->complex {:x 1 :y 2 :z 3}))
+
   )
 
 (def zero

@@ -366,6 +366,17 @@
     along with subtraction and division
     with refelction and inversion using the complex conjugate
 
+*** contracts as types
+    https://github.com/jessitron/contracts-as-types-examples/blob/master/test/contractypes/report_example_test.clj
+    https://github.com/jessitron/contracts-as-types-examples
+    https://github.com/jessitron/schematron
+
+    http://www.slideshare.net/jessitron/contracts-inclojurepete
+
+    david mcneil extending prismatic schema to higher order
+    http://david-mcneil.com/post/114783282473/extending-prismatic-schema-to-higher-order
+    https://gist.github.com/david-mcneil/a46b091c05a91adb8336
+
 *** add complex sqrt
     with tests
 *** re factor draw

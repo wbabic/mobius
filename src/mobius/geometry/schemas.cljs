@@ -1,6 +1,7 @@
 (ns mobius.geometry.schemas
   "schemas for geometric objects"
-  (:require [schema.core :as s :include-macros true]))
+  (:require [schema.core :as s :include-macros true]
+            [cognitect.transit :as t]))
 
 (def Point [s/Num])
 (def Circle "a schema for a circle" {:center Point :radius s/Num})
@@ -24,3 +25,17 @@
 ;; and core.match
 
 ;; schema records
+
+;; transit
+;; not working
+(comment
+  (let [l [:red :green :blue]
+        r (t/reader :json)
+        w (t/writer :json)]
+    ;; (t/write w l)
+    l)
+
+  (let [l [:red :green :blue]
+        w (t/writer :json)]
+    l)
+  )

@@ -7,7 +7,8 @@
             [mobius.draw :as draw]
             [mobius.geometry :as geom]
             [mobius.transforms :as t]
-            [mobius.geometry.circle :as circle]))
+            [mobius.geometry.circle :as circle]
+            [mobius.geometry.schemas :as s]))
 
 (enable-console-print!)
 

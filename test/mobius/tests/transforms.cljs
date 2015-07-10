@@ -27,9 +27,14 @@
   )
 
 (comment
-  (complex/rad->deg (complex/arg (complex/complex-rect [1 1])))
-  ;;=> 45
+  (require '[mobius.tests.transforms])
+  (in-ns 'mobius.tests.transforms)
+  (doc is)
+  (doc test/run-tests)
+  (test/run-tests)
+  )
 
+(comment
   (map complex/coords (coords (scale (complex/complex-rect [1 1]))))
   ;;=> ([1 1] [0 0] [0 0] [1 0])
 
