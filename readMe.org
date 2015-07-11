@@ -312,6 +312,9 @@
     CLOSED: [2015-06-18 Thu 10:28]
     unit
 *** add more comprehensive unit tests
+    clojurescript testing
+    https://github.com/clojure/clojurescript/wiki/Testing
+
 *** add test.check
     generative tests
     test properties
@@ -320,8 +323,7 @@
     https://github.com/clojure/test.check
 
 *** add schema contracts
-    prismatic schema
-    0.4.3
+    for dicumentation and testing
 
     (require '[schema.core :as s :include-macros true])
     (doc schema.core)
@@ -348,13 +350,7 @@
       (s/check circle [:circle {:center [0 0] :radius 1}])
     #+END_SRC
 
-    problem: how to match [:circle Circle]
-    schema feels awkward for describing tagged data
-
     how to describe [:triangle p1 p2 p3]
-
-    alternatively, how about making more use of complex numbers
-    and their ability to be transformed
 
     for instance
     a point is a single complex number
@@ -371,18 +367,25 @@
     https://github.com/jessitron/contracts-as-types-examples
     https://github.com/jessitron/schematron
 
+    Philly ETE 2015 #4
+    Contracts & Clojure: The Best-Yet Compromise of Types and Tests
+    Jessica Kerr
+    https://www.youtube.com/watch?v=GFQqyXoL0YQ
     http://www.slideshare.net/jessitron/contracts-inclojurepete
 
     david mcneil extending prismatic schema to higher order
     http://david-mcneil.com/post/114783282473/extending-prismatic-schema-to-higher-order
     https://gist.github.com/david-mcneil/a46b091c05a91adb8336
 
+*** get transit working
+    round trip some data
 *** add complex sqrt
     with tests
 *** re factor draw
-    inta canvas specific stuff
-    and mobius stuuf
+    into canvas specific stuff
+    and mobius stuff
     add svg impementation
+
 *** extend line segment
     line between two points
     should sometimes be extended to a whole line
