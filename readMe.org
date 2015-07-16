@@ -1,6 +1,6 @@
 * mobius transformations
 ** idea
-   algebra and geometry of
+   illuminate algebra and geometry of
    the extended complex numbers and
    linear fractional transformations
 
@@ -13,8 +13,24 @@
 
    stereographic projection
    the extended complex plane
-   and the Reiman sphere
+   and the Riemann sphere
    in perspective
+
+   the idea is to use generalized circless
+   to illuminate mobius transformations
+   create render lists for particular transformations
+   specific and general render lists
+
+   a render list is a data structue
+   to be stored in a file, in a db
+   sent over the wire
+   rendered to a canvas, instantly or animated,
+   or rendered to svg
+
+   a render list contains geometry with style
+   and can be transformerd
+   by geometric tranformations
+   and color transformations
 
 ** app behavior
    app is either in mouse mode or animation mode
@@ -465,70 +481,60 @@
     circle through infinity is a line
 *** define the terms
     complex number
-    addition, multiplication, one, zero
+    addition, multiplication, one, zero, infinity
     subtraction, multiplication
     length angle
+    conjugate
     point line triangle circle
     basic operations
     translation, dilation
     reflection - in a line or a circle
+    reciprocation
 
     transforms using + - * / bar
     circle preserving transformations
     orientation, preserving and reversing
 
+    transformable - able to be transformed
+    renderable - able to be rendered
+
+    protocols
+    Complex Transform Transformable Renderable
+
 *** describe the data
     tell a story
 
     two paths
-    one using reords and extend-type
-    another vectors and core.match
+    one using protocolas and reords
+    another vectors with keywords and core.match
 
-    so what is he relevant data here?
-    primitive types: point line circle triangle style
+    geometric types: point line circle triangle style
     to be combined in a sequence to be rendered to the canvas
-    or, eventually, to svg
+    or, eventually, to svg or webgl
 
-    to be able to animate illustrations,
-    illuminate ideas
-
-    geoemtric types with style
     number types with algebraic operations
     addition and multiplication
-    complex number
 
     transformation types
     that can be compoesed, conjugated
     have inverses
     and preserve generalized circles
 
-    generalized circles
-    a circle or a line
-    can be transformed
-    and, with some style, rendered
-
-    families of circles, pencils
+    pencils of circles
     and orthogonal compliments
-    images of pencils
-
-    basic transformations
-    applied to
-    unit circle
-    real axis
+    and their images
 
     translation and dilation
-    addition and multiplication
 
     geomtric data assiciated with a transform
     to illustrate that transform
 
-    ability to create data and save or
-    pass it to the server
-    store it in a data base
-    comment on it and share it
-    or save it locally to the file system
-    evenually synching with db
-*** play of game
+    ability to generate and validate data
+    and to save it
+    pass it over the wire
+    store it in a data base, or in a file
+
+*** define play of game
     basic objects ad operations
     transforamtion geometry
     using complex number
