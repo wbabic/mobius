@@ -14,7 +14,8 @@
                  [org.omcljs/om "0.8.8"]
                  [org.clojure/test.check "0.7.0"]
                  [prismatic/schema "0.4.3"]
-                 [com.cognitect/transit-cljs "0.8.220"]]
+                 [com.cognitect/transit-cljs "0.8.220"]
+                 [complex/complex "0.1.0"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.7"
@@ -39,14 +40,7 @@
              :compiler {:output-to "resources/public/cljs/main.js"
                         :main mobius.core
                         :optimizations :advanced
-                        :pretty-print false}}
-            {:id "test"
-             :source-paths ["src" "test"]
-             :notify-command ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]
-             :compiler {:output-to "target/testable.js"
-                        :optimizations :whitespace
-                        :pretty-print true}}]
-   :test-commands {"test" ["phantomjs" "phantom/unit-test.js" "phantom/unit-test.html"]}}
+                        :pretty-print false}}]}
 
   :figwheel
   {:css-dirs ["resources/public/css"]})

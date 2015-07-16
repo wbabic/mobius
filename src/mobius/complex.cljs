@@ -53,7 +53,7 @@
           :else
           (complex-rect (product [x y] (coords w)))))
   (recip [z] (let [d (+ (* x x) (* y y))]
-             (complex. (/ x d) (/ (- y) d))))
+               (complex. (/ x d) (/ (- y) d))))
   (conjugate [_] (complex. x (- y)))
   (length [_] (v/len [x y]))
   (arg [_] (mod-tau (v/angle [x y]))))
@@ -239,7 +239,7 @@
     (if (= t :infinity)
       (div a c)
       (div (add (mult a t) b)
-                   (add (mult c t) d)))))
+           (add (mult c t) d)))))
 
 (defn three-point->param
   [p q r]
@@ -250,7 +250,7 @@
     [a b c d]))
 
 (defn circle
-  "return a parameterized circle through the trhee given complex numbers"
+  "return a parameterized circle through the three given complex numbers"
   [p q r]
   (apply param-circle (three-point->param p q r)))
 
