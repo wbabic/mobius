@@ -53,19 +53,15 @@
 
 ** implementation
 *** drawing to canvas
-    draw.cljs
-    basic geometric primitives of
+    render/canvas.cljs
+    render basic geometric primitives of
     point line triangle circle rect
-    style
-
-    rendered to a canvas context
+    style to an html cnavas
     by sending data to a care.async channel
 
     a drawing-loop channel
     that renders recieved messages to a graphics context
-
-    larger geometric objects
-    constructed from a sequence of basic primitives
+    and listens for mouse and key events
 
 *** handling of events
     mouse click and move events put on events channel
@@ -101,50 +97,19 @@
    Roland Deaux
 
 ** next steps
-*** DONE generalized circles
-    CLOSED: [2015-06-14 Sun 16:58]
-    calculate image of a
-    generalized circle
-    under any linear fractional transformation
-
-    create representation of
-    a generalized circle
-    as a Hermitian matrix
-
-*** polar and rectanglar interactive modes
-    when mouse is in pre-image canvas
-    draw line through mouse and origin
-    and circle centered at origin through mouse point
-    when in polar mode
-
-    or vertical and horizontal lines through mouse point
-    when in rectangular mode
-
-    lines and/or circles in pre-image canvas
+*** mouse interactive modes
+    generalized circles in pre-image canvas
     are drawn simultaneously in image canvas
     updated in both canvases as mouse moves
 
-    lcoal state
-    :mouse-mode :polar :reactangular
-    :mouse-point
-
     events channel: mouse-move, mouse-click
     control channel: to start and stop mode
-    screen->user: to convert screen space to user space
 
     render list - list of things to be rendered
-    :axis :radial-lines :concentric-circles
-    :horizontal-lines :vertical-lines
 
     animating-mode
     while in animating mode, temporarily disable mouse mode
     indicate visually that an animation is in place
-
-    separate drawing data from animation
-    allowing for quick redrawing while in mouse-mode
-
-    animation button clicks add animations to the render-list
-    clear removes them
 
 *** interactive mouse modes
     modes for creating objects
@@ -208,7 +173,7 @@
     - are hyperbolic
     - are parabolic
 
-*** allow for input of arbitrary linear fractional transformation
+*** input arbitrary linear fractional transformation
     and switching between a list of transforms, and adding new ones to the list
 
     allow for input of arbitrary complex number
@@ -224,68 +189,57 @@
     allow for input of linear fractional transformations
     by selection from a list or by entering 4 complex numbers
 
-*** show properties of the transformation
+*** properties of transformation
     entries a b c d
     determinant
     trace
     inverse
     fixed points
 
-*** allow for conjugation
+*** conjugation
     with translation, rotation, scaling
-*** DONE add unit tests
-    CLOSED: [2015-06-18 Thu 10:28]
-    unit
-*** add more comprehensive unit tests
+*** unit tests
     clojurescript testing
     https://github.com/clojure/clojurescript/wiki/Testing
 
-*** add test.check
+*** test.check
     generative tests
-    test properties
-
-    0.7.0
     https://github.com/clojure/test.check
 
-*** add schema contracts
-    for dicumentation and testing
+*** schema contracts
+    for documentation and testing
+**** references
+     blog:
+     http://blog.getprismatic.com/schema-for-clojurescript-data-shape-declaration-and-validation/
+     docs:
+     http://prismatic.github.io/schema/
 
-    (require '[schema.core :as s :include-macros true])
-    (doc schema.core)
+     github:
+     https://github.com/Prismatic/schema
 
-    namespace documentation
+**** code
+     #+BEGIN_SRC clojure
+       (def Point [s/Num])
+       (def Circle "a schema for circles" {:center Point :radius s/Num})
 
-    blog:
-    http://blog.getprismatic.com/schema-for-clojurescript-data-shape-declaration-and-validation/
-    docs:
-    http://prismatic.github.io/schema/
+       (s/check Circle {:center [0 0] :radius 1})
+       (s/validate Circle {:center [0 0] :radius 1})
 
-    github:
-    https://github.com/Prismatic/schema
+       (def circle [(s/one s/Keyword "tag") (s/one Circle "data")])
+       (s/check circle [:circle {:center [0 0] :radius 1}])
+     #+END_SRC
 
+     how to describe [:triangle p1 p2 p3]
 
-    #+BEGIN_SRC clojure
-      (def Point [s/Num])
-      (def Circle "a schema for circles" {:center Point :radius s/Num})
-
-      (s/check Circle {:center [0 0] :radius 1})
-      (s/validate Circle {:center [0 0] :radius 1})
-
-      (def circle [(s/one s/Keyword "tag") (s/one Circle "data")])
-      (s/check circle [:circle {:center [0 0] :radius 1}])
-    #+END_SRC
-
-    how to describe [:triangle p1 p2 p3]
-
-    for instance
-    a point is a single complex number
-    a line, two complex numbers
-    a triangle made up of three complex numbers,
-    if not collinear, has a circumcircle - a circumcenter and a radius
-    a transform can be applied to a point a line or a triangle
-    and consists of complex addition and multiplication
-    along with subtraction and division
-    with refelction and inversion using the complex conjugate
+     for instance
+     a point is a single complex number
+     a line, two complex numbers
+     a triangle made up of three complex numbers,
+     if not collinear, has a circumcircle - a circumcenter and a radius
+     a transform can be applied to a point a line or a triangle
+     and consists of complex addition and multiplication
+     along with subtraction and division
+     with refelction and inversion using the complex conjugate
 
 *** contracts as types
     https://github.com/jessitron/contracts-as-types-examples/blob/master/test/contractypes/report_example_test.clj
@@ -301,15 +255,6 @@
     david mcneil extending prismatic schema to higher order
     http://david-mcneil.com/post/114783282473/extending-prismatic-schema-to-higher-order
     https://gist.github.com/david-mcneil/a46b091c05a91adb8336
-
-*** get transit working
-    round trip some data
-*** add complex sqrt
-    with tests
-*** re factor draw
-    into canvas specific stuff
-    and mobius stuff
-    add svg impementation
 
 *** extend line segment
     line between two points
@@ -342,8 +287,6 @@
     so does the image circle of a line
     that is, three corresponding arcs of a circle
 
-    an example is under the Cayley transformation,
-    in mouse-mode, polar, the line from the mouse point through the origin
     the three points are the origin, the mouse point, and infinity
     the line should have three distinctive parts
     as well as its image
@@ -365,10 +308,12 @@
     a circle can be represented by three points
     that is the circumcirlce of the triangle
     consisting of the three given points
+    as long as the three points are not collinear
 
     in case the three points are colliner,
     then the circle is really a line,
     which is a circle in the generalized sense
+    a circle that passes through infinity
 
 *** parameterized circle
     z = (at + b)/(ct + d)
@@ -383,11 +328,10 @@
     constructed and
     calibrated
 
+    passing through three given points, p q and r
+    at t = 0, 1 and infinity, respectively
     see Deaux
 
-*** geometry and complex numbers
-    including infinity
-    circle through infinity is a line
 *** define the terms
     complex number
     addition, multiplication, one, zero, infinity
@@ -411,33 +355,26 @@
     Complex Transform Transformable Renderable
 
 *** describe the data
-    tell a story
-
     geometric types: point line circle triangle style
-    to be combined in a sequence to be rendered to the canvas
+    combined in a sequence, rendered to the canvas
     or, eventually, to svg and webgl
 
     number types
-    algebraic operations
-    addition and multiplication
+    with algebraic operations of addition and multiplication
 
     transformation types
-    that can be compoesed, conjugated
-    have inverses
-    and preserve generalized circles
+    that can be composed and conjugated
+    and have inverses
+    preserving generalized circles
 
     pencils of circles
-    and orthogonal compliments
+    and their orthogonal compliments
     and their images
+    illustrating that transform, associated with that transfrom
 
-    translation and dilation
-
-    geomtric data assiciated with a transform
-    to illustrate that transform
-
-    ability to generate and validate data
-    to save it, pass it over the wire
-    store it in a data base, or in a file
+    able to be generated and validated
+    passed over the wire
+    saved in a database or a file
 
 *** define play of game
     basic objects and operations
@@ -446,7 +383,7 @@
     making more complex things from simpler ones
 
     classify all modius transformations
-    generate pencils of circles
+    generate pencils of circles. and their images
     along with orthogonal compliments
     just using an axis and a circle with
     translation and dilation,
