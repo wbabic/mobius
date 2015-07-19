@@ -15,21 +15,20 @@
                  [org.clojure/test.check "0.7.0"]
                  [prismatic/schema "0.4.3"]
                  [com.cognitect/transit-cljs "0.8.220"]
-                 [complex/complex "0.1.0"]]
+                 [complex/complex "0.1.1"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.7"
              :exclusions [org.clojure/clojure
                           org.codehaus.plexus/plexus-utils]]]
 
-  :source-paths ["src" "test"]
-
+  :source-paths ["src"]
   :clean-targets ^{:protect false} ["resources/public/cljs" "target"]
 
   :cljsbuild
   {
    :builds [{:id "dev"
-             :source-paths ["src" "test"]
+             :source-paths ["src"]
              :figwheel { :on-jsload "mobius.core/on-js-reload" }
              :compiler {:main mobius.core
                         :asset-path "cljs/out"

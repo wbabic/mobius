@@ -5,7 +5,8 @@
             [cljs.core.async :as async :refer [chan <! >! timeout]]
             [cljs.core.match :refer-macros [match]]
             [mobius.draw :as draw]
-            [mobius.transforms :as t]))
+            [mobius.render.canvas :as render]
+            [complex.transform :as t]))
 
 (enable-console-print!)
 
@@ -24,7 +25,7 @@
    {:index 0
     :transforms t/transforms
     :render-list #{}
-    :animations #{}}))
+    }))
 
 (defn current-transform
   "return current transform from dereferences state"
@@ -37,9 +38,6 @@
   [state]
   (let [t (current-transform state)]
     (:transform t)))
-
-(defn image-fn [app-state]
-  #(t/image (transform-fn @app-state) %))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
@@ -113,40 +111,6 @@
            (flatten (for [[t i] (mapv vector transforms (range))]
                       (transform-item t i current-index app-state))))))
 
-(defn drawing-button [key text fn]
-  (dom/button #js {:onClick
-                   #(fn key)}
-              text))
-
-(defn drawing-buttons
-  "drawing buttons"
-  [app-state draw-chan-1 draw-chan-2]
-  (let [animate (fn [id]
-                  (do
-                    ;; add animation to render list
-                    (om/transact! app-state :render-list (fn [s] (conj s id)))
-                    (draw/animate app-state id 800 draw-chan-1 draw-chan-2
-                                  (image-fn app-state))))]
-       (dom/div #js {:className "animations"}
-                (dom/h3 nil "Animations")
-                (drawing-button :axis "Axes and Unit Circle" animate)
-                (drawing-button :concentric-circles "Concentric Circle" animate)
-                (drawing-button :radial-lines "Radial Lines" animate)
-                (drawing-button :horizontal-lines "Horizontal Lines" animate)
-                (drawing-button :vertical-lines "Vertical Lines" animate)
-                (dom/button #js {:onClick
-                                 #(do
-                                    (draw/clear-screen draw-chan-1)
-                                    (draw/clear-screen draw-chan-2)
-                                    (om/update! app-state :render-list #{}))}
-                            "Clear")
-                (dom/div nil
-                         (dom/h3 nil "Current Animations")
-                         (let [animations (:animations app-state)]
-                           (if (> (count animations) 0)
-                             (pr-str animations)
-                             "none"))))))
-
 (defn next-step
   "return new state for given event"
   [event state]
@@ -206,14 +170,12 @@
     (render-state [_ state]
       (let [mouse-mode-state (:mouse-mode state)
             mouse-point (:mouse-point state)
-            animations (:animations app-state)
             control-chan (om/get-shared owner :control-chan)
             draw-chan-1 (om/get-shared owner :draw-chan-1)
             draw-chan-2 (om/get-shared owner :draw-chan-2)]
         (when (and
                (or (true? (:rectangular mouse-mode-state))
                    (true? (:polar mouse-mode-state)))
-               (= (count animations) 0)
                (not (nil? mouse-point)))
           ;; draw local state
           (draw/render-local app-state state
@@ -224,7 +186,6 @@
                  (dom/div #js {:className "select-transform"}
                           (dom/h3 nil "Select Transform")
                           (transform-items app-state))
-                 (drawing-buttons app-state draw-chan-1 draw-chan-2)
                  (mouse-mode owner control-chan))))))
 
 (defn el [id] (js/document.getElementById id))
@@ -234,10 +195,10 @@
  app-state
  {:target (el "mobius-config")
   :shared (let [[draw-chan-1 event-chan-1]
-                (draw/drawing-loop "mobius-canvas-1"
+                (render/drawing-loop "mobius-canvas-1"
                                    canvas-1-config
                                    true)
-                draw-chan-2 (draw/drawing-loop "mobius-canvas-2" canvas-2-config)]
+                draw-chan-2 (render/drawing-loop "mobius-canvas-2" canvas-2-config)]
             {:draw-chan-1 draw-chan-1
              :event-chan-1 event-chan-1
              :draw-chan-2 draw-chan-2
@@ -246,20 +207,20 @@
 (comment
   (in-ns 'mobius.core)
   ;; user-screen mapping
-  (let [m (draw/user->screen canvas-1-config)
+  (let [m (render/user->screen canvas-1-config)
         tf (map m)
         data [[0 0] [1 0] [0 1] 1 [-10 10] [10 -10]]]
     (sequence tf data))
   ;;=> ([250 250] [313 250] [250 188] 62.5 [-375 -375] [875 875])
 
   ;; screen->user mapping
-  (let [m-inv (draw/screen->user canvas-1-config)
+  (let [m-inv (render/screen->user canvas-1-config)
         t-fn (map m-inv)
         data [[250 250] [313 250] [250 188] [-375 -375] [875 875]]]
     (sequence t-fn data))
   ;;=> ([0 0] [1.008 0] [0 0.992] [-10 10] [10 -10])
 
-  (let [m (draw/user->screen canvas-1-config)
+  (let [m (render/user->screen canvas-1-config)
         tf (map m)
         data [[12500 12500] [0.125 0.125] [0 0] [-12499.875 -12499.875]]]
     (sequence tf data))

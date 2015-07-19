@@ -8,24 +8,19 @@
    points lines circles triangles
    and their images under application of linear fractional transformations
 
+   transformed from user space into screen space
+
    two complex planes
    pre-image and image
 
-   stereographic projection
-   the extended complex plane
-   and the Riemann sphere
-   in perspective
+   pencils of circles
+   in pre-image canvas mapped to image canvas
+   illuminate mobius transformations
 
-   the idea is to use generalized circless
-   to illuminate mobius transformations
-   create render lists for particular transformations
-   specific and general render lists
-
-   a render list is a data structue
-   to be stored in a file, in a db
-   sent over the wire
-   rendered to a canvas, instantly or animated,
-   or rendered to svg
+   render list as a data structue
+   associated with a transformation
+   to be stored in a file, in a db, sent over the wire
+   rendered to a canvas, instantly or animated, or to svg
 
    a render list contains geometry with style
    and can be transformerd
@@ -33,31 +28,18 @@
    and color transformations
 
 ** app behavior
-   app is either in mouse mode or animation mode
-   in animation mode, mouse mode is disabled
+   explore images of pencils of circles
+   and their images under transformation
 
-   display elements are rendered one at a time
+   create render lists
+   of pencils with color
+   rendered one at a time, or all at once
    on top of each other
 
    animate button will render everything in render list,
    in order added, one element at a time
-   using an offscreen buffer to redraw
-   everything in render list quickly
-
-   in mouse mode, render list is displayed first
-   then mouse position, kept in local state, is displayed
 
    mouse mode used to create objects to be added to render list
-
-   elements in render list consist of
-   predifined elements including
-   axis, unit circle,
-   rectangular grid lines
-   concentric circles about origin
-   radial lines through origin
-
-   custom elements defined through mouse mode
-   and then added to render list
 
    render list should be viewable and editable
 
@@ -70,79 +52,6 @@
    or save on local file system
 
 ** implementation
-*** vector
-    in vector.cljs
-    algebraic operations for vectors and matrices
-
-    sum product
-    scal-mul
-    dot
-    len len-sq
-    angle
-    midpoint
-    mvmult
-    mmmult
-    mat-inverse
-
-*** complex number
-    in complex.cljs
-
-    represented as
-    a vector of two rational numbers
-    [x y] or [r a]
-    with the possibility of being infinity
-    where 1/zero = infinity and 1/infinity = zero
-    and zero/zero = infinity/infinity = undefined
-
-    complex numbers can be added, multiplied and conjugated
-    they have a length and an angle
-
-*** linear fractional transformation
-    in trasnforms.cljs
-
-    represented as
-    a vector of four complex numbers
-    [a b c d]
-    that can be normalized so that
-    ad - bc = 1
-    has a determinant, trace, inverse
-    can be composed and conjugated
-
-    translation rotation scaling inversion
-    all represented as 4-vectors of complex number
-
-    composition of transformation implemented as
-    matrix multipliation of 2x2 complex matrices
-
-    inverse of a transformation as inverse of a 2x2 matrix
-    conjugation by a conjugataing map as composition
-    of three matrices
-
-*** image of a generalized circle
-    image of a circle from
-    Grandma's recipe and project 3.7 in Indra's Pearls
-
-    my idea:
-    image of a line
-    line represented by two points
-    look at image of the two points and of their midpoint
-    they are either collieanr,
-    in which case the image of the line is a line
-    or they form a triangle,
-    in which case the image of the line is a circle,
-    the circumcircle of the triangle
-
-    so what is the circumcircle of a triangle?
-    the circumcenter is the intesection of the perpendicualr bisectors
-    the radius is the distance
-    from the circumcenter
-    to one of the vertices of the triangle
-    see illuminated triangle
-
-    todo:
-    look at method from geometry of complex numbers
-    where a generalized circle is repsesented as a Hermitian matrix
-
 *** drawing to canvas
     draw.cljs
     basic geometric primitives of
@@ -504,15 +413,12 @@
 *** describe the data
     tell a story
 
-    two paths
-    one using protocolas and reords
-    another vectors with keywords and core.match
-
     geometric types: point line circle triangle style
     to be combined in a sequence to be rendered to the canvas
-    or, eventually, to svg or webgl
+    or, eventually, to svg and webgl
 
-    number types with algebraic operations
+    number types
+    algebraic operations
     addition and multiplication
 
     transformation types
@@ -530,18 +436,17 @@
     to illustrate that transform
 
     ability to generate and validate data
-    and to save it
-    pass it over the wire
+    to save it, pass it over the wire
     store it in a data base, or in a file
 
 *** define play of game
-    basic objects ad operations
+    basic objects and operations
     transforamtion geometry
     using complex number
-    making more complex things form simple ones
+    making more complex things from simpler ones
 
-    classifying all modius transformations
-    generate pencils of circles, generalized cirles
+    classify all modius transformations
+    generate pencils of circles
     along with orthogonal compliments
     just using an axis and a circle with
     translation and dilation,
@@ -553,6 +458,3 @@
     illustrated by example
     implemented in code
     as basic data structures
-
-    read the story with a b-repl
-    connect algebra and geometry
