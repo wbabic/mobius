@@ -14,6 +14,9 @@
    in pre-image canvas mapped to image canvas
    by mobius transformation
 
+** Usage
+   lein figwheel
+
 ** Play of game
    use translation rotation and scaling
    to create parabolic, hyperbolic and elliptic pencils
@@ -90,24 +93,6 @@
     clojurescript, cljsbuild, figwheel, brepl
 
     complex library
-
-** Math references
-   Introduction to Geometry
-   Coxeter
-
-   Indra's Pearls
-   The vision of Felix Klein
-   Mumford, Series, Wright
-
-   Visual Complex Analysis
-   Tristan Needham
-
-   Geometry of Complex Numbers
-   Hans Schwerdttfeger
-
-   Introduction to the
-   Geometry of Complex Numbers
-   Roland Deaux
 
 ** Next steps
 *** interactive mouse modes
