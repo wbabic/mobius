@@ -1,72 +1,83 @@
-* mobius transformations
-** idea
+* Mobius Transformation
+** Idea
    illuminate algebra and geometry of
    the extended complex numbers and
-   linear fractional transformations
+   mobius transformations
 
-   geometric objects:
-   points lines circles triangles
+   geometric data structures consisting of sequences of
+   points lines circles triangles, styled
    and their images under application of linear fractional transformations
 
    transformed from user space into screen space
 
-   two complex planes
-   pre-image and image
-
    pencils of circles
    in pre-image canvas mapped to image canvas
-   illuminate mobius transformations
+   by mobius transformation
 
-   render list as a data structue
-   associated with a transformation
-   to be stored in a file, in a db, sent over the wire
-   rendered to a canvas, instantly or animated, or to svg
+** Play of game
+   use translation rotation and scaling
+   to create parabolic, hyperbolic and elliptic pencils
+   see their images, under mobius transformation
+   replay, save and edit
 
-   a render list contains geometry with style
-   and can be transformerd
-   by geometric tranformations
-   and color transformations
+   classify all mobius transformations
+   using fixed points and pencils of circles
 
-** app behavior
-   explore images of pencils of circles
-   and their images under transformation
+   mouse-move, mouase-click events move axis
+   and key-press events generate pencils
+   via translation, ratation of the x-axis
+   and scaling of a unit circle
 
-   create render lists
-   of pencils with color
-   rendered one at a time, or all at once
-   on top of each other
+*** mouse controls
+    mouse-move moves center of axis
+    mouse-click sets position of axis
 
-   animate button will render everything in render list,
-   in order added, one element at a time
+*** key controls
+    creates a pencil of circles from axis,
+    by transforming either the
+    x-axis or y-axis by translation
+    x-axis unit-circle by rotation and scaling
 
-   mouse mode used to create objects to be added to render list
+**** translate
+     x-axis or y-axis
+     - u
+       up
+     - d
+       down
+     - l
+       left
+     - r
+       right
+**** scale
+     unit circle
+     - i
+       in
+     - o
+       out
+**** rotate
+     x-axis
+     - a
+       around -> counter clockwise
+     - b
+       back -> clockwise
 
-   render list should be viewable and editable
-
-   switching transforms shoud triger either
-   an animated redraw or an instant redraw
-
-   once a render list is created,
-   one could save as an svg or
-   save as data and send to server,
-   or save on local file system
-
-** implementation
+** Implementation
 *** drawing to canvas
     render/canvas.cljs
     render basic geometric primitives of
-    point line triangle circle rect
-    style to an html cnavas
+    point line triangle circle rect and style
+    to an html canvas
     by sending data to a care.async channel
 
     a drawing-loop channel
-    that renders recieved messages to a graphics context
-    and listens for mouse and key events
+    that renders recieved messages to a graphics canvas context
+    processing mouse and key events received from an events channel
 
 *** handling of events
     mouse click and move events put on events channel
     handled by an event handler
-    with a control channel to start and stop
+
+    with a control channel to start and stop listeners
 
 *** technologies used
     om, react
@@ -78,58 +89,9 @@
     svg (not yet implemented)
     clojurescript, cljsbuild, figwheel, brepl
 
-** play of game
-   basic objects and operations
-   of transforamtion geometry
-   using complex number
-   making more complex things from simpler ones
+    complex library
 
-   classify all modius transformations
-   generate pencils of circles. and their images
-   along with orthogonal compliments
-   just using an axis and a unit circle with
-   translation rotation and scaling
-   which in turn uses addition and multiplication
-   of complex numbers and their inverses
-
-   define a set of terms
-   which are used throughout,
-   illustrated by example
-   implemented in code
-   as basic data structures
-
-   using mouse and keys
-   mouse moves center
-   key triggers animation, temporaily disabling mouse control,
-   until animation is finished
-*** mouse controls
-    mouse moves center
-
-*** key controls
-    create a pencil of circle
-***** translate
-      x-axis or y-axis
-      - u
-        up
-      - d
-        down
-      - l
-        left
-      - r
-        right
-***** scale
-      unit circle
-      - i
-        in
-      - o
-        out
-***** rotate
-      x-axis
-      - a
-        around -> counter clockwise
-      - b
-        back -> clockwise
-** math references
+** Math references
    Introduction to Geometry
    Coxeter
 
@@ -147,21 +109,7 @@
    Geometry of Complex Numbers
    Roland Deaux
 
-** next steps
-*** mouse interactive modes
-    generalized circles in pre-image canvas
-    are drawn simultaneously in image canvas
-    updated in both canvases as mouse moves
-
-    events channel: mouse-move, mouse-click
-    control channel: to start and stop mode
-
-    render list - list of things to be rendered
-
-    animating-mode
-    while in animating mode, temporarily disable mouse mode
-    indicate visually that an animation is in place
-
+** Next steps
 *** interactive mouse modes
     modes for creating objects
     or for viewing properties
@@ -239,190 +187,3 @@
 
     allow for input of linear fractional transformations
     by selection from a list or by entering 4 complex numbers
-
-*** properties of transformation
-    entries a b c d
-    determinant
-    trace
-    inverse
-    fixed points
-
-*** conjugation
-    with translation, rotation, scaling
-*** unit tests
-    clojurescript testing
-    https://github.com/clojure/clojurescript/wiki/Testing
-
-*** test.check
-    generative tests
-    https://github.com/clojure/test.check
-
-*** schema contracts
-    for documentation and testing
-**** references
-     blog:
-     http://blog.getprismatic.com/schema-for-clojurescript-data-shape-declaration-and-validation/
-     docs:
-     http://prismatic.github.io/schema/
-
-     github:
-     https://github.com/Prismatic/schema
-
-**** code
-     #+BEGIN_SRC clojure
-       (def Point [s/Num])
-       (def Circle "a schema for circles" {:center Point :radius s/Num})
-
-       (s/check Circle {:center [0 0] :radius 1})
-       (s/validate Circle {:center [0 0] :radius 1})
-
-       (def circle [(s/one s/Keyword "tag") (s/one Circle "data")])
-       (s/check circle [:circle {:center [0 0] :radius 1}])
-     #+END_SRC
-
-     how to describe [:triangle p1 p2 p3]
-
-     for instance
-     a point is a single complex number
-     a line, two complex numbers
-     a triangle made up of three complex numbers,
-     if not collinear, has a circumcircle - a circumcenter and a radius
-     a transform can be applied to a point a line or a triangle
-     and consists of complex addition and multiplication
-     along with subtraction and division
-     with refelction and inversion using the complex conjugate
-
-*** contracts as types
-    https://github.com/jessitron/contracts-as-types-examples/blob/master/test/contractypes/report_example_test.clj
-    https://github.com/jessitron/contracts-as-types-examples
-    https://github.com/jessitron/schematron
-
-    Philly ETE 2015 #4
-    Contracts & Clojure: The Best-Yet Compromise of Types and Tests
-    Jessica Kerr
-    https://www.youtube.com/watch?v=GFQqyXoL0YQ
-    http://www.slideshare.net/jessitron/contracts-inclojurepete
-
-    david mcneil extending prismatic schema to higher order
-    http://david-mcneil.com/post/114783282473/extending-prismatic-schema-to-higher-order
-    https://gist.github.com/david-mcneil/a46b091c05a91adb8336
-
-*** extend line segment
-    line between two points
-    should sometimes be extended to a whole line
-
-    would be nice to be able to distinguish the three parts
-    given two points, p1 p2,
-    the three parts are
-    the finite segment p1 to p2
-    the infinite segments
-    from infinity to p1 and
-    from p2 to infinity
-
-    and then the image of the three parts
-    could also be distinguished
-
-    as an example, consider mouse-mode, rectangular
-    the vertical line consists of
-    point to real axis
-    and then to infinity
-    and from point to infinity
-    and simalarly for horizontal lines but with imaginary axis
-*** three points make a circle
-    the circumcircle of a triangle, if not collinear
-
-    when the image of a line is a circle,
-    the three points of the image circle are
-    images of p1 p2 and infinity
-    and just as the lien between two points makes three segments
-    so does the image circle of a line
-    that is, three corresponding arcs of a circle
-
-    the three points are the origin, the mouse point, and infinity
-    the line should have three distinctive parts
-    as well as its image
-    whether its image is a line or a circle
-
-    0 1 i
-    line 0 1 -> unit circle
-    line 0 i -> real axis
-    infinity -> one
-    unit circle -> imaginary axis
-
-    circles inside unit circle
-    circles outside unit circle
-
-    see how a line is really just a circle of infinite radius
-*** express circle by three points
-    as an alternative representation,
-    in addition to center radius representation
-    a circle can be represented by three points
-    that is the circumcirlce of the triangle
-    consisting of the three given points
-    as long as the three points are not collinear
-
-    in case the three points are colliner,
-    then the circle is really a line,
-    which is a circle in the generalized sense
-    a circle that passes through infinity
-
-*** parameterized circle
-    z = (at + b)/(ct + d)
-    generalized equation
-    z*zbar + a*z + abar*zbar + b = 0
-    center = -abar
-    radius = a*abar - b
-
-    example: z = (1 + it)/(1 - it)
-    z1 z0 zinfinity
-
-    constructed and
-    calibrated
-
-    passing through three given points, p q and r
-    at t = 0, 1 and infinity, respectively
-    see Deaux
-
-*** define the terms
-    complex number
-    addition, multiplication, one, zero, infinity
-    subtraction, multiplication
-    length angle
-    conjugate
-    point line triangle circle
-    basic operations
-    translation, dilation
-    reflection - in a line or a circle
-    reciprocation
-
-    transforms using + - * / bar
-    circle preserving transformations
-    orientation, preserving and reversing
-
-    transformable - able to be transformed
-    renderable - able to be rendered
-
-    protocols
-    Complex Transform Transformable Renderable
-
-*** describe the data
-    geometric types: point line circle triangle style
-    combined in a sequence, rendered to the canvas
-    or, eventually, to svg and webgl
-
-    number types
-    with algebraic operations of addition and multiplication
-
-    transformation types
-    that can be composed and conjugated
-    and have inverses
-    preserving generalized circles
-
-    pencils of circles
-    and their orthogonal compliments
-    and their images
-    illustrating that transform, associated with that transfrom
-
-    able to be generated and validated
-    passed over the wire
-    saved in a database or a file
