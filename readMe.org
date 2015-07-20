@@ -78,6 +78,57 @@
     svg (not yet implemented)
     clojurescript, cljsbuild, figwheel, brepl
 
+** play of game
+   basic objects and operations
+   of transforamtion geometry
+   using complex number
+   making more complex things from simpler ones
+
+   classify all modius transformations
+   generate pencils of circles. and their images
+   along with orthogonal compliments
+   just using an axis and a unit circle with
+   translation rotation and scaling
+   which in turn uses addition and multiplication
+   of complex numbers and their inverses
+
+   define a set of terms
+   which are used throughout,
+   illustrated by example
+   implemented in code
+   as basic data structures
+
+   using mouse and keys
+   mouse moves center
+   key triggers animation, temporaily disabling mouse control,
+   until animation is finished
+*** mouse controls
+    mouse moves center
+
+*** key controls
+    create a pencil of circle
+***** translate
+      x-axis or y-axis
+      - u
+        up
+      - d
+        down
+      - l
+        left
+      - r
+        right
+***** scale
+      unit circle
+      - i
+        in
+      - o
+        out
+***** rotate
+      x-axis
+      - a
+        around -> counter clockwise
+      - b
+        back -> clockwise
 ** math references
    Introduction to Geometry
    Coxeter
@@ -375,23 +426,3 @@
     able to be generated and validated
     passed over the wire
     saved in a database or a file
-
-*** define play of game
-    basic objects and operations
-    transforamtion geometry
-    using complex number
-    making more complex things from simpler ones
-
-    classify all modius transformations
-    generate pencils of circles. and their images
-    along with orthogonal compliments
-    just using an axis and a circle with
-    translation and dilation,
-    which in turn uses addition and multiplication
-    of complex numbers and their inverses
-
-    define a set of terms
-    which are used throughout,
-    illustrated by example
-    implemented in code
-    as basic data structures
