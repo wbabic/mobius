@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
             [complex.vector :as v]
-            [complex.geometry :as c]))
+            [complex.geometry :as g]))
 
 (enable-console-print!)
 
@@ -36,19 +36,19 @@
         (cond-> []
           (and polar? (> (v/len-sq point) 1e-2))
           (into
-           (let [line (c/radial-line-through-point point)
-                 circle (c/circle-through-point point)]
-             [[line c/cs-1] [circle c/cs-2]]))
+           (let [line (g/radial-line-through-point point)
+                 circle (g/circle-through-point point)]
+             [[line g/cs-1] [circle g/cs-2]]))
           rect? (into
-                 (let [h-line (c/horizontal-line-through-point point)
-                       v-line (c/vertical-line-through-point point)
-                       c1 (c/circle-about-point point)]
-                   [[h-line c/cs-3] [v-line c/cs-4] [c1 c/cs-5]])))]
+                 (let [h-line (g/horizontal-line-through-point point)
+                       v-line (g/vertical-line-through-point point)
+                       c1 (g/circle-about-point point)]
+                   [[h-line g/cs-3] [v-line g/cs-4] [c1 g/cs-5]])))]
     (go
       (doseq [[r cs] render-list]
-        (doseq [d (c/render r cs)]
+        (doseq [d (g/render r cs)]
           (>! draw-chan-1 d))
-        (doseq [d (c/render (f r) cs)]
+        (doseq [d (g/render (f r) cs)]
           (>! draw-chan-2 d))))))
 
 (defn render-local
