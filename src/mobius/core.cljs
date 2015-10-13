@@ -190,19 +190,20 @@
 
 (defn el [id] (js/document.getElementById id))
 
-(om/root
- mobius-config
- app-state
- {:target (el "mobius-config")
-  :shared (let [[draw-chan-1 event-chan-1]
-                (render/drawing-loop "mobius-canvas-1"
-                                   canvas-1-config
-                                   true)
-                draw-chan-2 (render/drawing-loop "mobius-canvas-2" canvas-2-config)]
-            {:draw-chan-1 draw-chan-1
-             :event-chan-1 event-chan-1
-             :draw-chan-2 draw-chan-2
-             :control-chan (chan)})})
+(comment
+  (om/root
+   mobius-config
+   app-state
+   {:target (el "mobius-config")
+    :shared (let [[draw-chan-1 event-chan-1]
+                  (render/drawing-loop "mobius-canvas-1"
+                                       canvas-1-config
+                                       true)
+                  draw-chan-2 (render/drawing-loop "mobius-canvas-2" canvas-2-config)]
+              {:draw-chan-1 draw-chan-1
+               :event-chan-1 event-chan-1
+               :draw-chan-2 draw-chan-2
+               :control-chan (chan)})}))
 
 (comment
   (in-ns 'mobius.core)

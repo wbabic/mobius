@@ -95,7 +95,7 @@
     complex library
 
 ** Next steps
-*** interactive mouse modes
+*** Interactive mouse modes
     modes for creating objects
     or for viewing properties
 
