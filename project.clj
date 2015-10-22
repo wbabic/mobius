@@ -11,7 +11,8 @@
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
                                org.clojure/tools.analyzer.jvm]]
-                 [org.omcljs/om "0.9.0"]
+                 [org.omcljs/om "0.9.0"
+                  :exclusions [cljsjs/react]]
                  [org.clojure/test.check "0.7.0"]
                  [prismatic/schema "0.4.3"]
                  [com.cognitect/transit-cljs "0.8.220"]
@@ -20,7 +21,7 @@
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
                                org.clojure/tools.analyzer.jvm]]
-                 [devcards "0.2.0-2"]]
+                 [devcards "0.2.0-8"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-figwheel "0.4.0"

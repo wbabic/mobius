@@ -18,9 +18,9 @@ canvas {
     border-radius: 3px;
 }
 dt { width: 75px; float: left; }
-dt, dd { vertical-align: bottom;
-         line-height: 36px;
-
-       }
+dt, dd {
+  vertical-align: bottom;
+  line-height: 36px;
+}
 input { padding: 6px 6px 2px; border: 1px solid #CCC; }
 input:focus { outline: 2px solid #a3ccf7; }
