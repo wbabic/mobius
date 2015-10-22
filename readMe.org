@@ -17,6 +17,9 @@
 ** Usage
    lein figwheel
 
+   for devcards:
+   http://localhost:3449/cards.html
+
 ** Play of game
    use translation rotation and scaling
    to create parabolic, hyperbolic and elliptic pencils
