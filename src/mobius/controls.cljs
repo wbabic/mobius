@@ -4,7 +4,8 @@
    [om.dom :as dom :include-macros true]
    [cljs.test :as t :include-macros true :refer-macros [testing is]]
    [mobius.render.canvas :as render]
-   [complex.number :as n])
+   [complex.number :as n]
+   [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]])
   (:require-macros
    [devcards.core :as dc :refer [defcard defcard-doc defcard-om noframe-doc deftest dom-node]]
    [cljs.core.async.macros :refer [go go-loop alt!]]))
@@ -74,11 +75,12 @@
                          (dom/dd nil (dom/input #js {:type "text"
                                                      :value (screen-coords 1)}))))))))
 
-(defcard-om user->screen-transform
-  "## Transformation from user space to screen space
+(comment
+  (defcard-om user->screen-transform
+    "## Transformation from user space to screen space
    ### Enter user space coordinates and calculate screen space image."
-  user->screen-component
-  initial-state)
+    user->screen-component
+    initial-state))
 
 (def one n/one)
 (def i n/i)
@@ -94,46 +96,63 @@
    :zero zero
    :infinity infinity})
 
-(def standard-turtle
-  {:x-axis [:zero :one :infinity :negative-one]
-   :y-axis [:zero :i :infinity :negative-i]
-   :unit-circle [:one :i :negative-one :negative-i]})
+(def turtle-geometry
+  {:x-axis '[zero one infinity]
+   :y-axis '[zero i infinity]
+   :unit-circle '[one i negative-one]})
+
+(def turtle-style
+  {:x-axis {:edge :red :inside :lt-red}
+   :y-axis {:edge :blue :inside :lt-blue}
+   :unit-circle {:edge :green :inside :lt-green}})
+
+(defonce standard-turtle
+  (atom
+   {:geometry turtle-geometry
+    :style turtle-style}))
 
 (defcard standard-turtle
-  "## The Standard Turtle"
+  "## The Standard Turtle
+   consists of geometry of three generalized circles and style:"
   standard-turtle)
 
-(comment
-  (let [id "canvas1"]
-    (dom/div nil
-             (dom/canvas #js {:id "canvas1" :height 300 :width 500})))
-  )
+;; turtle-canvas - a place for turtle to be drawn to
+(def turtle-chan (chan))
 
-(defn turtle-transform [data owner]
-  (dom/div #js {:className "turtle-transform"}
-           (dom/dl nil
-                   (dom/h3 nil "Turtle transform sequence")
-                   )))
+(def shared {:title "Shared title"
+             :channel turtle-chan})
 
-(defcard turtle-state
-  "# The State of the Turtle
-   ##The state is the transform that maps the standard turtle to this turtle.
+(defn canvas-component [data owner]
+  (reify
+    om/IDidMount
+    (did-mount [_]
+      (println "mounting"))
+    om/IWillUnmount
+    (will-unmount [_]
+      (println "unmounting this"))
+    om/IRender
+    (render [_]
+      (dom/div nil
+               (dom/h3 nil "A canvas!")
+               (dom/div nil (str "Shared text: " (om/get-shared owner :title)))
+               (dom/canvas #js {:id "canvas2" :height 300 :width 500})
+               (dom/button nil "Render")))))
 
-    Moving around the turtle,
-    creating sequence of transforms that can be reduced to a single transform,
-    or replayed back as an animation."
-  turtle-transform)
+(def x-axis [[:style {:stroke "red"}]
+             [:line [0 0] [1 0]]
+             [:line [1 0] [100000 0]]
+             [:line [-99999 0] [0 0]]])
 
-(defcard transformed-turtle
-  "## The Transformed Turtle
-   ### Draw the transformed turtle to a canvas element."
-  (let [id "canvas1"]
-    (dom/div nil
-             (dom/canvas #js {:id "canvas1" :height 300 :width 500}))))
+(defcard render-data
+  "Result of running
+   ```clojure
+   (render (:x-axis standard-turtle))
+   ```
+is just data:"
+  x-axis)
 
-(defonce observed-atom
-  (let [a (atom {:time 0})]
-    (js/setInterval (fn [] (swap! observed-atom update-in [:time] inc)) 1000)
-    a))
-
-(defcard atom-observing-card observed-atom {} {:history false})
+(defcard-om turtle-home
+  "A canvas in which to draw our turtle. A drawing loop with a core.async channel in which to place drawing primitives which will then be rendered into a canvas element in the Dom. Get the context in IDidMout's did-mount protocol method. Click the render button to send the above data to the drawing loop."
+  canvas-component
+  standard-turtle
+  {:shared shared})
