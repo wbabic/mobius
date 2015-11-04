@@ -3,7 +3,8 @@
    [om.core :as om :include-macros true]
    [om.dom :as dom :include-macros true]
    [cljs.test :as t :include-macros true :refer-macros [testing is]]
-   [mobius.controls])
+   [mobius.controls]
+   [mobius.turtle])
   (:require-macros
    [devcards.core :as dc :refer [defcard defcard-doc defcard-om noframe-doc deftest dom-node]]))
 

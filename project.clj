@@ -16,7 +16,8 @@
                  [org.clojure/test.check "0.7.0"]
                  [prismatic/schema "0.4.3"]
                  [com.cognitect/transit-cljs "0.8.220"]
-                 [complex/complex "0.1.1"]
+                 [complex/complex "0.1.2"
+                  :exclusions [org.clojure/test.check prismatic/schema]]
                  [devcards "0.2.0-8"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
