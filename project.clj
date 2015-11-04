@@ -1,12 +1,12 @@
-(defproject mobius "0.1.0"
+(defproject mobius "0.1.1"
   :description "Project Mobius"
   :url "http://wbabic.github.io"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.122"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/clojurescript "1.7.145"]
+                 [org.clojure/core.async "0.2.371"]
                  [org.clojure/core.match "0.3.0-alpha4"
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
@@ -17,10 +17,6 @@
                  [prismatic/schema "0.4.3"]
                  [com.cognitect/transit-cljs "0.8.220"]
                  [complex/complex "0.1.1"]
-                 [complex "0.1.1"
-                  :exclusions [org.ow2.asm/asm-all
-                               org.clojure/tools.analyzer
-                               org.clojure/tools.analyzer.jvm]]
                  [devcards "0.2.0-8"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
