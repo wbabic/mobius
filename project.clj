@@ -1,4 +1,4 @@
-(defproject mobius "0.1.1"
+(defproject mobius "0.1.2"
   :description "Project Mobius"
   :url "http://wbabic.github.io"
   :license {:name "Eclipse Public License"

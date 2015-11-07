@@ -82,40 +82,6 @@
     user->screen-component
     initial-state))
 
-(def one n/one)
-(def i n/i)
-(def negative-one (n/minus one))
-(def negative-i (n/minus i))
-(def zero n/zero)
-(def infinity n/infinity)
-(def point-map
-  {:one one
-   :i i
-   :negative-one negative-one
-   :negative-i negative-i
-   :zero zero
-   :infinity infinity})
-
-(def turtle-geometry
-  {:x-axis '[zero one infinity]
-   :y-axis '[zero i infinity]
-   :unit-circle '[one i negative-one]})
-
-(def turtle-style
-  {:x-axis {:edge :red :inside :lt-red}
-   :y-axis {:edge :blue :inside :lt-blue}
-   :unit-circle {:edge :green :inside :lt-green}})
-
-(defonce standard-turtle
-  (atom
-   {:geometry turtle-geometry
-    :style turtle-style}))
-
-(defcard standard-turtle
-  "## The Standard Turtle
-   consists of geometry of three generalized circles and style:"
-  standard-turtle)
-
 ;; turtle-canvas - a place for turtle to be drawn to
 (def turtle-chan (chan))
 
@@ -151,8 +117,9 @@
 is just data:"
   x-axis)
 
-(defcard-om turtle-home
-  "A canvas in which to draw our turtle. A drawing loop with a core.async channel in which to place drawing primitives which will then be rendered into a canvas element in the Dom. Get the context in IDidMout's did-mount protocol method. Click the render button to send the above data to the drawing loop."
-  canvas-component
-  standard-turtle
-  {:shared shared})
+(comment
+  (defcard-om turtle-home
+    "A canvas in which to draw our turtle. A drawing loop with a core.async channel in which to place drawing primitives which will then be rendered into a canvas element in the Dom. Get the context in IDidMout's did-mount protocol method. Click the render button to send the above data to the drawing loop."
+    canvas-component
+    standard-turtle
+    {:shared shared}))
