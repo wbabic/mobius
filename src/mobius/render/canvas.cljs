@@ -8,7 +8,7 @@
 
 (enable-console-print!)
 
-(def radius 2)
+(def radius 4)
 
 ;; functions to render basic geometric primitives to a canvas context
 (defn point [context [x y]]
@@ -63,13 +63,25 @@
   (.fill context)
   (.closePath context))
 
+(def color-keyword-map
+  {:red "red"
+   :blue "blue"
+   :green "green"
+   :yellow "yellow"
+   :magenta "magenta"
+   :cyan "cyan"
+   :orange "orange"
+   :purple "purple"})
+
+(defn color-for-keyword
+  [color-keyword]
+  (get color-keyword-map color-keyword "grey"))
+
 (defn style [context s]
   (doseq [[k v] s]
     (case k
-      :fill (set! (. context -fillStyle) v)
-      :stroke (set! (. context -strokeStyle) v)
-      :lineDash (set! (. context -setLineDash) v)
-      :lineWidth (set! (. context -lineWidth) v))))
+      :fill (set! (. context -fillStyle) (color-for-keyword v))
+      :stroke (set! (. context -strokeStyle) (color-for-keyword v)))))
 
 ;; user space -> screen mapping stuff
 (def round-pt (fn [p] (mapv Math.round p)))

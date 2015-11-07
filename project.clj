@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.145"]
+                 [org.clojure/clojurescript "1.7.170"]
                  [org.clojure/core.async "0.2.371"]
                  [org.clojure/core.match "0.3.0-alpha4"
                   :exclusions [org.ow2.asm/asm-all
@@ -13,17 +13,17 @@
                                org.clojure/tools.analyzer.jvm]]
                  [org.omcljs/om "0.9.0"
                   :exclusions [cljsjs/react]]
-                 [org.clojure/test.check "0.7.0"]
-                 [prismatic/schema "0.4.3"]
-                 [com.cognitect/transit-cljs "0.8.220"]
-                 [complex/complex "0.1.2"
-                  :exclusions [org.clojure/test.check prismatic/schema]]
-                 [devcards "0.2.0-8"]]
+                 [org.clojure/test.check "0.8.2"]
+                 [prismatic/schema "1.0.1"]
+                 [complex/complex "0.1.4"]
+                 [devcards "0.2.0-8"]
+                 [ring/ring-core "1.4.0"]
+                 [clj-time "0.9.0"]]
 
-  :plugins [[lein-cljsbuild "1.1.0"]
-            [lein-figwheel "0.4.0"
+  :plugins [[lein-cljsbuild "1.1.1-SNAPSHOT"]
+            [lein-figwheel "0.5.0-SNAPSHOT"
              :exclusions [org.clojure/clojure
-                          org.codehaus.plexus/plexus-utils]]]
+                          ring/ring-core]]]
 
   :source-paths ["src"]
   :clean-targets ^{:protect false} ["resources/public/cljs" "target"]

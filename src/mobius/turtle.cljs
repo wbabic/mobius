@@ -5,7 +5,8 @@
    [complex.number :as n]
    [complex.turtle :as turtle]
    [complex.transform :as transform]
-   [complex.turtle.render :as render])
+   [complex.turtle.render :as render]
+   [mobius.render.canvas :as canvas])
   (:require-macros
    [devcards.core :as dc :refer [defcard defcard-doc defcard-om]]))
 
@@ -31,32 +32,46 @@ a sequence of graphics data primitives:
 ```
 ")
 
-(defn draw-canvas-contents [ canvas ]
-  (let [ ctx (.getContext canvas "2d")
+(def user-space
+  {:domain [-2 2]
+   :range [-2 2]})
+
+(defn config-for-canvas [xres yres]
+  (assoc user-space :resolution [xres yres]))
+
+(defn user->screen-mapping [xres yres]
+  (canvas/user->screen (config-for-canvas xres yres)))
+
+(comment
+  ((user->screen-mapping 300 300) [0 0])
+  ;;=> [150 150]
+  )
+
+(defn draw-canvas-contents [ctx w h turtle]
+  (let [st @turtle
+        render-data (render/render-turtle st)
+        t-fn (user->screen-mapping w h)]
+    (doseq [d render-data]
+      (println d)
+      (canvas/render d ctx t-fn))))
+
+(defn draw-turtle [canvas-id turtle]
+  (let [canvas (.getElementById js/document canvas-id)
+        context (.getContext canvas "2d")
         w (.-clientWidth canvas)
         h (.-clientHeight canvas)]
-    (.beginPath ctx)
-    (.moveTo ctx 0 0)
-    (.lineTo ctx w h)
-    (.moveTo ctx w 0)
-    (.lineTo ctx 0 h)
-    (.stroke ctx)))
+    (draw-canvas-contents context w h turtle)))
 
-(defn get-context-from-id [canvas-id]
-  (let [canvas (.getElementById js/document canvas-id)
-        context (.getContext canvas "2d")]
-    (draw-canvas-contents canvas)))
-
-(defn canvas-component [data owner]
+(defn canvas-component [turtle owner]
   (reify
     om/IDidUpdate
     (did-update [this prev-props prev-state]
       (println "canvas-component did update")
-      (get-context-from-id "canvas2"))
+      (draw-turtle "canvas2" turtle))
     om/IDidMount
     (did-mount [_]
       (println "mounting canvas-component")
-      (get-context-from-id "canvas2"))
+      (draw-turtle "canvas2" turtle))
     om/IWillUnmount
     (will-unmount [_]
       (println "unmounting canvas-component"))
@@ -64,7 +79,7 @@ a sequence of graphics data primitives:
     (render [_]
       (println "rendering canvas-component")
       (dom/div nil
-               (dom/canvas #js {:id "canvas2" :height 300 :width 500})))))
+               (dom/canvas #js {:id "canvas2" :height 300 :width 300})))))
 
 (defonce st (atom turtle/standard-turtle))
 

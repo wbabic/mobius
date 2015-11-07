@@ -111,14 +111,6 @@
            (flatten (for [[t i] (mapv vector transforms (range))]
                       (transform-item t i current-index app-state))))))
 
-(defn next-step
-  "return new state for given event"
-  [event state]
-  (prn event)
-  (match event
-         [:click p] (conj state p)
-         [:move p] state))
-
 (defn handle-event
   [owner app-state event-chan]
   (go-loop []
