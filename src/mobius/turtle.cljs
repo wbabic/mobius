@@ -14,9 +14,13 @@
   "
 ## Mobius Turtle
 
-### what happens when a good turtle meets a Mobius transformation
+A turtle consists of six points, each represented by a complex number
 
-turtle has keys of :circle :points :style"
+and three 'genrealized circles'
+
+each circle contains four of the six points
+
+the points and the circles have an associated style"
   turtle/standard-turtle)
 
 (defcard turtle-rendered-data
@@ -28,8 +32,11 @@ turtle has keys of :circle :points :style"
 a sequence of graphics data primitives:
 
 ```clojure
-  (render/render-turtle turtle/standard-turtle)
+  (complex.turtle.render/render-turtle complex.turtle/standard-turtle)
 ```
+
+output is a sequnce of vectors with keywords :point :line :circle, or :style
+and associated values
 ")
 
 (def user-space
@@ -88,6 +95,12 @@ a sequence of graphics data primitives:
 ## Render Turtle
 
 draw standard turtle into a canvas
+
+using light circles
+
+oriented circles with a light colored inside
+
+where inside is considered to be to the left
 "
   canvas-component
   st)
@@ -96,9 +109,15 @@ draw standard turtle into a canvas
   "
 ## Transform Turtle
 
-geometricly transform point-map
-by applying a Mobius transformation to each of its point values
-which are represented by complex numbers")
+### what happens when a good turtle meets a Mobius transformation
+
+transform each of the point values in the point-map
+by applying a Mobius transformation to each complex number,
+keeping the keywords the same
+
+the circles have the same keywords but now they refer to the tranformed point values
+
+select a transformation and draw the transformed turtle into a canvas")
 
 (comment
   (in-ns 'mobius.turtle)
