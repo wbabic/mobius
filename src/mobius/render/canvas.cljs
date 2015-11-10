@@ -61,19 +61,18 @@
   ;;(.fill context)
   (.closePath context))
 
+(defn disk [context center radius]
+  (.beginPath context)
+  (.arc context (center 0) (center 1) radius 0 (* 2 Math/PI) false)
+  (.fill context)
+  (.closePath context))
+
 (defn arc
   "counter clockwise arc from start to end radians"
   [context center radius start end clockwise]
   (.beginPath context)
   (.arc context (center 0) (center 1) radius start end (not clockwise))
   (.stroke context)
-  (.closePath context))
-
-(defn disk [context center radius]
-  (.beginPath context)
-  (.arc context (center 0) (center 1) radius 0 (* 2 Math/PI) false)
-  (.stroke context)
-  (.fill context)
   (.closePath context))
 
 (def color-keyword-map
@@ -85,7 +84,7 @@
    :magenta "magenta"
    :cyan "cyan"
    :orange "orange"
-   :lt-orange "orange"
+   :lt-orange "rgba(255,0,0,0.25)"
    :purple "purple"
    :lt-purple "rgba(0,0,255,0.25)"})
 
@@ -143,6 +142,9 @@
          [:circle C]
          (let [{:keys [center radius]} C]
            (circle context (t-fn center) (t-fn radius)))
+         [:disk C]
+         (let [{:keys [center radius]} C]
+           (disk context (t-fn center) (t-fn radius)))
          [:arc C]
          (let [{:keys [center radius start end clockwise]} C]
            (arc context (t-fn center) (t-fn radius) (- start) (- end) clockwise))
