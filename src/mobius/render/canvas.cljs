@@ -38,6 +38,19 @@
     (.fill context)
     (.closePath context)))
 
+(defn quad [context p1 p2 p3 p4]
+  (let [[x1 y1] p1
+        [x2 y2] p2
+        [x3 y3] p3
+        [x4 y4] p4]
+    (.beginPath context)
+    (.moveTo context x1 y1)
+    (.lineTo context x2 y2)
+    (.lineTo context x3 y3)
+    (.lineTo context x4 y4)
+    (.fill context)
+    (.closePath context)))
+
 (defn rect [context [x1 y1] [x2 y2]]
   (.fillRect context x1 y1 x2 y2))
 
@@ -67,11 +80,14 @@
   {:red "red"
    :blue "blue"
    :green "green"
+   :lt-green "rgba(0,255,0,0.25)"
    :yellow "yellow"
    :magenta "magenta"
    :cyan "cyan"
    :orange "orange"
-   :purple "purple"})
+   :lt-orange "orange"
+   :purple "purple"
+   :lt-purple "rgba(0,0,255,0.25)"})
 
 (defn color-for-keyword
   [color-keyword]
@@ -122,6 +138,8 @@
          (line context (t-fn p1) (t-fn p2))
          [:triangle p1 p2 p3]
          (triangle context (t-fn p1) (t-fn p2) (t-fn p3))
+         [:quad p1 p2 p3 p4]
+         (quad context (t-fn p1) (t-fn p2) (t-fn p3) (t-fn p4))
          [:circle C]
          (let [{:keys [center radius]} C]
            (circle context (t-fn center) (t-fn radius)))

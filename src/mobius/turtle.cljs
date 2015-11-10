@@ -120,5 +120,6 @@ the circles have the same keywords but now they refer to the tranformed point va
 select a transformation and draw the transformed turtle into a canvas")
 
 (comment
+  ;; from figwheel repl
   (in-ns 'mobius.turtle)
   )

@@ -15,7 +15,7 @@
                   :exclusions [cljsjs/react]]
                  [org.clojure/test.check "0.8.2"]
                  [prismatic/schema "1.0.1"]
-                 [complex/complex "0.1.4"]
+                 [complex/complex "0.1.7"]
                  [devcards "0.2.0-8"]
                  [ring/ring-core "1.4.0"]
                  [clj-time "0.9.0"]]
