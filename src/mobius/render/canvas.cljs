@@ -8,7 +8,7 @@
 
 (enable-console-print!)
 
-(def radius 4)
+(def radius 3)
 
 ;; functions to render basic geometric primitives to a canvas context
 (defn point [context [x y]]
@@ -78,6 +78,7 @@
 (def color-keyword-map
   {:red "red"
    :blue "blue"
+   :lt-blue "rgba(0,0,255,0.25)"
    :green "green"
    :lt-green "rgba(0,255,0,0.25)"
    :yellow "yellow"
@@ -85,8 +86,10 @@
    :cyan "cyan"
    :orange "orange"
    :lt-orange "rgba(255,0,0,0.25)"
+   :lt-red "rgba(255,0,0,0.25)"
    :purple "purple"
-   :lt-purple "rgba(0,0,255,0.25)"})
+   :lt-purple "rgba(0,0,255,0.25)"
+   :clear "rgba(0,0,0,0.0)"})
 
 (defn color-for-keyword
   [color-keyword]
