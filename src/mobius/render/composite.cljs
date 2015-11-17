@@ -9,11 +9,15 @@
    [devcards.core :as dc :refer [defcard defcard-doc defcard-om]]))
 
 (defcard-doc
-  "## Compositing and Clipping
+  "
+## Compositing and Clipping
 
-    first, need to fill the outside of a counter clockwise-circle,
+fill the inside of a clockwise circle,
+where to the left is away from center
 
-(or the inside of a clockwise circle)")
+same as filling the outside
+of a counter-clockwise circle
+")
 
 (def user-space
   {:domain [-2 2]
@@ -33,7 +37,7 @@
   )
 
 (def c1 [n/one n/i n/negative-one])
-(def x-axis [n/zero n/negative-one n/infinity])
+(def x-axis [n/zero n/one n/infinity])
 (def x-axis-style {:edge :blue :inside :lt-blue})
 (def y-axis [n/zero n/negative-i n/infinity])
 (def y-axis-style {:edge :green :inside :lt-green})
@@ -91,7 +95,7 @@
             context2 (.getContext canvas2 "2d")]
         (draw-inside context1)
         (draw-line context2 x-axis x-axis-style)
-        (draw-line context2 y-axis y-axis-style)
+        ;;(draw-line context2 y-axis y-axis-style)
         (copy-canvas-to-context canvas1 context2)))
     om/IWillUnmount
     (will-unmount [_]
@@ -105,15 +109,13 @@
 
 (defonce st (atom turtle/standard-turtle))
 
-(defcard-om render-light-circles
+(defcard-om render-light-circle
   "
 ## Render two light circles
 
-both with same style {:edge :red :inside :lt-red}
+* left) a clockwise circle with inside colored :lt-red
 
-the first counter-clockwise and the second clockwise
-
-where inside is to the left
+* right) left copied onto a blue x-axis with a :lt-blue inside
 "
   canvas-component
   st)

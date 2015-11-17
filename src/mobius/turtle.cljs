@@ -14,30 +14,32 @@
   "
 ## Mobius Turtle
 
-A turtle consists of six points, each represented by a complex number
+A turtle consists of six points, each point being represented by a complex number
 
-and three 'genrealized circles'
+and three 'genrealized circles' passing through four of the above points
 
-each circle contains four of the six points
-
-the points and the circles have an associated style"
+each circle intersecting the others twice
+"
   turtle/standard-turtle)
 
-(defcard turtle-rendered-data
+(defcard render-turtle-as-data
   "
 ## Render Turtle
 
-### as data
-
-a sequence of graphics data primitives:
+as a sequence of graphics data primitives using:
 
 ```clojure
   (complex.turtle.render/render-turtle complex.turtle/standard-turtle)
 ```
 
-output is a sequnce of vectors with keywords :point :line :circle, or :style
+output is a sequence of vectors with keywords :point :line :circle, or :style
 and associated values
-")
+
+that can be rendered to a canvas or to svg
+
+here is the data for the x-axis:
+"
+  (render/render-line [n/zero n/one n/infinity] {:edge :blue :inside :lt-blue}))
 
 (def user-space
   {:domain [-2 2]
@@ -90,17 +92,19 @@ and associated values
 
 (defonce st (atom turtle/standard-turtle))
 
-(defcard-om turtle-rendered-to-canvas
+(defcard-om render-turtle-to-canvas
   "
 ## Render Turtle
 
-draw standard turtle into a canvas
+### into a canvas
 
-using light circles
+using oriented circles with lightly colored insides,
 
-oriented circles with a light colored inside
+where inside is to the left,
 
-where inside is considered to be to the left
+and a line is just a circle that happens to pass through infinity.
+
+(infinity not shown)
 "
   canvas-component
   st)

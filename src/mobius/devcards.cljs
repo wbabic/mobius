@@ -4,11 +4,12 @@
    [om.dom :as dom :include-macros true]
    [cljs.test :as t :include-macros true :refer-macros [testing is]]
    [mobius.turtle]
-   [mobius.render.composite])
+   [mobius.render.composite]
+   [mobius.render.svg])
   (:require-macros
    [devcards.core :as dc :refer [defcard defcard-doc defcard-om noframe-doc deftest dom-node]]))
 
 (defcard-doc
-  "## This is a markup devcard
+  "## This is a devcard
 
-    And this is a sentence.")
+    ")

@@ -17,6 +17,10 @@ canvas {
     border: 2px solid grey;
     border-radius: 3px;
 }
+svg {
+    border: 2px solid grey;
+    border-radius: 3px;
+}
 dt { width: 75px; float: left; }
 dt, dd {
   vertical-align: bottom;
