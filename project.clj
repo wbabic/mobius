@@ -6,7 +6,7 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
-                 [org.clojure/core.async "0.2.371"]
+                 [org.clojure/core.async "0.2.374"]
                  [org.clojure/core.match "0.3.0-alpha4"
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
@@ -16,12 +16,12 @@
                  [org.clojure/test.check "0.8.2"]
                  [prismatic/schema "1.0.1"]
                  [complex/complex "0.1.8"]
-                 [devcards "0.2.0-8"]
+                 [devcards "0.2.1-4"]
                  [ring/ring-core "1.4.0"]
                  [clj-time "0.9.0"]]
 
-  :plugins [[lein-cljsbuild "1.1.1-SNAPSHOT"]
-            [lein-figwheel "0.5.0-SNAPSHOT"
+  :plugins [[lein-cljsbuild "1.1.1"]
+            [lein-figwheel "0.5.0-3"
              :exclusions [org.clojure/clojure
                           ring/ring-core]]]
 
