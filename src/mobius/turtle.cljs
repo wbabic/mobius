@@ -3,6 +3,7 @@
    [om.core :as om :include-macros true]
    [om.dom :as dom :include-macros true]
    [complex.number :as n]
+   [devcards.core]
    [complex.turtle :as turtle]
    [complex.transform :as transform]
    [complex.turtle.render :as render]
