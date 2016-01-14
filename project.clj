@@ -17,7 +17,7 @@
                  [org.omcljs/om "0.9.0" :exclusions [cljsjs/react]]
 
                  [org.clojure/test.check "0.8.2"]
-                 [prismatic/schema "1.0.1"]
+                 [prismatic/schema "1.0.4"]
 
                  [complex/complex "0.1.9"]
 
