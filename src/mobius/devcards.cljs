@@ -4,6 +4,7 @@
    [om.dom :as dom :include-macros true]
    [cljs.test :as t :include-macros true :refer-macros [testing is]]
    [mobius.turtle]
+   [mobius.controls]
    [mobius.render.composite]
    [mobius.render.svg])
   (:require-macros
