@@ -7,17 +7,20 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
                  [org.clojure/tools.reader "1.0.0-alpha1"]
-                 [org.clojure/core.async "0.2.374" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/core.match "0.3.0-alpha4"
                   :exclusions [org.ow2.asm/asm-all
                                org.clojure/tools.analyzer
                                org.clojure/tools.analyzer.jvm]]
-                 [org.omcljs/om "0.9.0"
-                  :exclusions [cljsjs/react]]
+                 [org.clojure/core.async "0.2.374" :exclusions [org.clojure/tools.reader]]
+
+                 [devcards "0.2.1-4" :exclusions [org.clojure/tools.reader]]
+                 [org.omcljs/om "0.9.0" :exclusions [cljsjs/react]]
+
                  [org.clojure/test.check "0.8.2"]
                  [prismatic/schema "1.0.1"]
+
                  [complex/complex "0.1.9"]
-                 [devcards "0.2.1-4" :exclusions [org.clojure/tools.reader]]
+
                  [ring/ring-core "1.4.0"]
                  [clj-time "0.9.0"]]
 
