@@ -1,5 +1,6 @@
 (ns mobius.turtle
   (:require
+   [devcards.core]
    [om.core :as om :include-macros true]
    [om.dom :as dom :include-macros true]
    [complex.number :as n]
@@ -62,7 +63,6 @@ here is the data for the x-axis:
         render-data (render/render-turtle st)
         t-fn (user->screen-mapping w h)]
     (doseq [d render-data]
-      (println d)
       (canvas/render d ctx t-fn))))
 
 (defn draw-turtle [canvas-id turtle]
