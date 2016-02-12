@@ -1,5 +1,6 @@
 (ns mobius.render.svg
-  (:require [om.core :as om :include-macros true]
+  (:require [devcards.core]
+            [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [complex.number :as n]
             [complex.turtle :as turtle]

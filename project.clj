@@ -16,7 +16,7 @@
                  [org.clojure/core.async "0.2.374"]
 
                  [org.clojure/test.check "0.8.2"]
-                 [prismatic/schema "1.0.4"]
+                 [prismatic/schema "1.0.5"]
 
                  [complex/complex "0.1.9"]
 

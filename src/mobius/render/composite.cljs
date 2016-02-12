@@ -1,5 +1,6 @@
 (ns mobius.render.composite
-  (:require [om.core :as om :include-macros true]
+  (:require [devcards.core]
+            [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [complex.number :as n]
             [complex.turtle :as turtle]
@@ -66,16 +67,13 @@ of a counter-clockwise circle
         render-data [[:style {:fill :lt-red}]
                      [:quad [-2 -2] [2 -2] [2 2] [-2 2]]]]
     (doseq [d render-data]
-      (println d)
       (canvas/render d context t-fn))
     (.save context)
     (set! (. context -globalCompositeOperation) "destination-out")
     (doseq [d render-disk]
-      (println d)
       (canvas/render d context t-fn))
     (.restore context)
     (doseq [d render-edge]
-      (println d)
       (canvas/render d context t-fn))))
 
 (defn copy-canvas-to-context [canvas context]
